@@ -45,11 +45,10 @@ class StudentPlacementController {
             session_start();
         }
 
-        // Restrict student user strictly to their OWN student record
         if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
             $id = (int)($_SESSION['user_id'] ?? 0);
         } else {
-            $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            $id = isset($_POST['id']) ? (int)$_POST['id'] : (isset($_GET['id']) ? (int)$_GET['id'] : 0);
         }
 
         $student = null;

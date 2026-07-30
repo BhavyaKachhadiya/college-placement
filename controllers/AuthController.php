@@ -23,8 +23,7 @@ class AuthController {
         // If already logged in, redirect based on user_type
         if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
-                $studentId = $_SESSION['user_id'] ?? 1;
-                header('Location: index.php?module=student&action=studentProfile&id=' . $studentId);
+                header('Location: index.php?module=student&action=studentProfile');
                 exit;
             } else {
                 header('Location: index.php?module=dashboard');
@@ -145,7 +144,7 @@ class AuthController {
                         $_SESSION['department']= $student['department'] ?? 'N/A';
                         $_SESSION['email']     = $student['email'] ?? '';
 
-                        header('Location: index.php?module=student&action=studentProfile&id=' . $student['id']);
+                        header('Location: index.php?module=student&action=studentProfile');
                         exit;
                     } else {
                         $_SESSION['auth_error'] = 'Invalid password for Enrollment No <strong>' . htmlspecialchars($username) . '</strong>. Note: Student password is your Enrollment No.';
