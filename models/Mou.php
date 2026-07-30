@@ -59,6 +59,24 @@ class Mou {
     }
 
     /**
+     * Fetch distinct suggestions for MOU searches
+     */
+    public function getSuggestions() {
+        $companies = $this->db->query(
+            "SELECT DISTINCT `company_name` FROM `mous` WHERE `company_name` IS NOT NULL AND TRIM(`company_name`) != '' ORDER BY `company_name` ASC LIMIT 15"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        $contacts = $this->db->query(
+            "SELECT DISTINCT `contact_person` FROM `mous` WHERE `contact_person` IS NOT NULL AND TRIM(`contact_person`) != '' ORDER BY `contact_person` ASC LIMIT 15"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'companies' => $companies ?: [],
+            'contacts'  => $contacts ?: []
+        ];
+    }
+
+    /**
      * Create a new MOU
      */
     public function create($data) {

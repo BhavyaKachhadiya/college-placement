@@ -21,9 +21,10 @@ class MouController {
         $year   = isset($_REQUEST['year']) ? trim($_REQUEST['year']) : '';
         $status = isset($_REQUEST['status']) ? trim($_REQUEST['status']) : '';
 
-        $mous  = $this->mouModel->getAll($search, $year, $status);
-        $years = $this->mouModel->getYears();
-        $stats = $this->mouModel->getStats();
+        $mous        = $this->mouModel->getAll($search, $year, $status);
+        $years       = $this->mouModel->getYears();
+        $stats       = $this->mouModel->getStats();
+        $suggestions = $this->mouModel->getSuggestions();
 
         // Render views
         require_once __DIR__ . '/../views/layouts/header.php';

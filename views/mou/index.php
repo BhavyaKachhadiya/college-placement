@@ -68,11 +68,15 @@
             </div>
 
             <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <div class="search-input-group">
+            <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <div class="search-input-group autocomplete-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" name="search" class="form-control search-control" 
+                    <input type="text" name="search" id="mouSearchInput" class="form-control search-control" 
                            placeholder="Search company, contact, purpose..." 
-                           value="<?= htmlspecialchars($search) ?>">
+                           value="<?= htmlspecialchars($search) ?>"
+                           autocomplete="off" spellcheck="false">
+                    <!-- Live Floating Suggestions Dropdown -->
+                    <div class="search-suggestions-dropdown" id="mouSuggestionsDropdown"></div>
                 </div>
 
                 <div class="select-group">
@@ -93,10 +97,132 @@
     </div>
 
     <script>
+    const MOU_SUGGESTIONS = <?= json_encode($suggestions ?? ['companies'=>[], 'contacts'=>[]]) ?>;
+
     function submitMouPostYear(yearVal) {
         document.getElementById('postMouYearInput').value = yearVal;
         document.getElementById('mouFilterForm').submit();
     }
+
+    // Live Autocomplete Popup for MOU Search
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('mouSearchInput');
+        const dropdown    = document.getElementById('mouSuggestionsDropdown');
+        let activeIndex   = -1;
+
+        if (!searchInput || !dropdown) return;
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return escapeHtml(text);
+            const escapedText = escapeHtml(text);
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+        }
+
+        function renderSuggestions(query) {
+            const q = query.trim().toLowerCase();
+            // OPTIMIZATION: Do not show suggestions when empty
+            if (!q || q.length < 1) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matchedCompanies = (MOU_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedContacts  = (MOU_SUGGESTIONS.contacts || []).filter(ct => ct.toLowerCase().includes(q)).slice(0, 5);
+
+            const totalMatches = matchedCompanies.length + matchedContacts.length;
+
+            if (totalMatches === 0) {
+                dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching suggestions found</div>`;
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+
+            if (matchedCompanies.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-building"></i> Partner Companies / Organizations</div>`;
+                matchedCompanies.forEach(c => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(c)}">
+                                <i class="fa-solid fa-handshake suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(c, q)}</span>
+                                <span class="suggestion-badge badge-company">Company</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedContacts.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-user-tie"></i> Contact Persons</div>`;
+                matchedContacts.forEach(ct => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(ct)}">
+                                <i class="fa-solid fa-user suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(ct, q)}</span>
+                                <span class="suggestion-badge badge-instructor">Contact</span>
+                             </div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+            activeIndex = -1;
+
+            dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    searchInput.value = this.getAttribute('data-value');
+                    dropdown.style.display = 'none';
+                    document.getElementById('mouFilterForm').submit();
+                });
+            });
+        }
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', function() { renderSuggestions(this.value); });
+        searchInput.addEventListener('focus', function() { renderSuggestions(this.value); });
+
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.suggestion-item');
+            if (!items.length || dropdown.style.display === 'none') return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    items[activeIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
     </script>
 
     <!-- Data Display Section -->
