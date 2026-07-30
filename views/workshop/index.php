@@ -68,11 +68,14 @@
             </div>
 
             <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <div class="search-input-group">
+                <div class="search-input-group autocomplete-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" name="search" class="form-control search-control" 
+                    <input type="text" name="search" id="wsSearchInput" class="form-control search-control" 
                            placeholder="Search title, instructor, host company..." 
-                           value="<?= htmlspecialchars($search) ?>">
+                           value="<?= htmlspecialchars($search) ?>"
+                           autocomplete="off" spellcheck="false">
+                    <!-- Live Floating Suggestions Dropdown -->
+                    <div class="search-suggestions-dropdown" id="wsSuggestionsDropdown"></div>
                 </div>
 
                 <div class="select-group">
@@ -92,10 +95,150 @@
     </div>
 
     <script>
+    const WORKSHOP_SUGGESTIONS = <?= json_encode($suggestions ?? ['titles'=>[], 'companies'=>[], 'instructors'=>[]]) ?>;
+
     function submitWsPostYear(yearVal) {
         document.getElementById('postWsYearInput').value = yearVal;
         document.getElementById('wsFilterForm').submit();
     }
+
+    // Live Autocomplete Suggestion Popup Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('wsSearchInput');
+        const dropdown    = document.getElementById('wsSuggestionsDropdown');
+        let activeIndex   = -1;
+
+        if (!searchInput || !dropdown) return;
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return escapeHtml(text);
+            const escapedText = escapeHtml(text);
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+        }
+
+        function renderSuggestions(query) {
+            const q = query.trim().toLowerCase();
+            
+            const matchedTitles      = (WORKSHOP_SUGGESTIONS.titles || []).filter(t => !q || t.toLowerCase().includes(q)).slice(0, 5);
+            const matchedCompanies   = (WORKSHOP_SUGGESTIONS.companies || []).filter(c => !q || c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedInstructors = (WORKSHOP_SUGGESTIONS.instructors || []).filter(i => !q || i.toLowerCase().includes(q)).slice(0, 5);
+
+            const totalMatches = matchedTitles.length + matchedCompanies.length + matchedInstructors.length;
+
+            if (totalMatches === 0) {
+                dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching suggestions found</div>`;
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+
+            if (matchedTitles.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-graduation-cap"></i> Workshop Titles</div>`;
+                matchedTitles.forEach(t => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(t)}">
+                                <i class="fa-solid fa-book-open suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(t, q)}</span>
+                                <span class="suggestion-badge">Title</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedCompanies.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-building"></i> Host Companies / Organizations</div>`;
+                matchedCompanies.forEach(c => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(c)}">
+                                <i class="fa-solid fa-city suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(c, q)}</span>
+                                <span class="suggestion-badge badge-company">Company</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedInstructors.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-user-tie"></i> Instructors / Host Names</div>`;
+                matchedInstructors.forEach(inst => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(inst)}">
+                                <i class="fa-solid fa-user-graduate suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(inst, q)}</span>
+                                <span class="suggestion-badge badge-instructor">Instructor</span>
+                             </div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+            activeIndex = -1;
+
+            // Attach click event to items
+            dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const val = this.getAttribute('data-value');
+                    selectSuggestion(val);
+                });
+            });
+        }
+
+        function selectSuggestion(val) {
+            searchInput.value = val;
+            dropdown.style.display = 'none';
+            document.getElementById('wsFilterForm').submit();
+        }
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Search Input Events
+        searchInput.addEventListener('input', function() {
+            renderSuggestions(this.value);
+        });
+
+        searchInput.addEventListener('focus', function() {
+            renderSuggestions(this.value);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.suggestion-item');
+            if (!items.length || dropdown.style.display === 'none') return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    items[activeIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
     </script>
 
     <!-- Data Display Section -->

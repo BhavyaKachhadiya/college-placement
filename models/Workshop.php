@@ -158,4 +158,27 @@ class Workshop {
         $stmt = $this->db->query($sql);
         return $stmt->fetch();
     }
+
+    /**
+     * Fetch grouped distinct suggestions for Title, Company, and Host / Instructor Name
+     */
+    public function getSuggestions() {
+        $titles = $this->db->query(
+            "SELECT DISTINCT `title` FROM `workshops` WHERE `title` IS NOT NULL AND TRIM(`title`) != '' ORDER BY `title` ASC"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        $companies = $this->db->query(
+            "SELECT DISTINCT `company_name` FROM `workshops` WHERE `company_name` IS NOT NULL AND TRIM(`company_name`) != '' ORDER BY `company_name` ASC"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        $instructors = $this->db->query(
+            "SELECT DISTINCT `instructor_name` FROM `workshops` WHERE `instructor_name` IS NOT NULL AND TRIM(`instructor_name`) != '' ORDER BY `instructor_name` ASC"
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'titles'      => $titles ?: [],
+            'companies'   => $companies ?: [],
+            'instructors' => $instructors ?: []
+        ];
+    }
 }

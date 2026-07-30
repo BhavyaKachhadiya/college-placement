@@ -21,9 +21,10 @@ class WorkshopController {
         $year        = isset($_REQUEST['year']) ? trim($_REQUEST['year']) : '';
         $certificate = isset($_REQUEST['certificate']) ? trim($_REQUEST['certificate']) : '';
 
-        $workshops = $this->workshopModel->getAll($search, $year, $certificate);
-        $years     = $this->workshopModel->getYears();
-        $stats     = $this->workshopModel->getStats();
+        $workshops   = $this->workshopModel->getAll($search, $year, $certificate);
+        $years       = $this->workshopModel->getYears();
+        $stats       = $this->workshopModel->getStats();
+        $suggestions = $this->workshopModel->getSuggestions();
 
         // Render view
         require_once __DIR__ . '/../views/layouts/header.php';
