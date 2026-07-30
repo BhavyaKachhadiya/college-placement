@@ -207,6 +207,30 @@ class ReportController {
         require_once __DIR__ . '/../views/layouts/footer.php';
     }
 
+    /**
+     * Individual Student Profile Report
+     * URL: index.php?module=report&action=studentProfile[&enroll=250114305001]
+     */
+    public function studentProfile() {
+        // queryPrepared & view rendering handled inside the view itself
+        // (We pass $this so the view can call $this->queryPrepared directly)
+        // Instead, resolve the query here and pass results to view.
+        $searchEnroll = isset($_GET['enroll']) ? trim($_GET['enroll']) : '';
+        $student      = null;
+
+        if ($searchEnroll !== '') {
+            $rows = $this->queryPrepared(
+                "SELECT * FROM `students` WHERE `enroll_no` = :enroll LIMIT 1",
+                [':enroll' => $searchEnroll]
+            );
+            $student = $rows[0] ?? null;
+        }
+
+        require_once __DIR__ . '/../views/layouts/header.php';
+        require_once __DIR__ . '/../views/report/student_profile.php';
+        require_once __DIR__ . '/../views/layouts/footer.php';
+    }
+
     private function query($sql) {
         $stmt = $this->db->query($sql);
         return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];

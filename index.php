@@ -71,6 +71,12 @@ switch ($action) {
         }
         break;
 
+    case 'studentProfile':
+        if (method_exists($controller, 'studentProfile')) {
+            $controller->studentProfile();
+        }
+        break;
+
     default:
         $controller->index();
         break;

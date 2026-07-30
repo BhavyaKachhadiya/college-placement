@@ -487,6 +487,43 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
         </div>
     </div>
 
+    <!-- ── SECTION: INDIVIDUAL STUDENT REPORT ── -->
+    <div class="report-section-header" style="margin-top: 0.25rem;">
+        <div class="report-section-badge" style="background:linear-gradient(135deg,#faf5ff,#ede9fe); color:#7c3aed;">
+            <i class="fa-solid fa-id-card"></i>
+        </div>
+        <div>
+            <h3 class="report-section-title">Individual Student Profile</h3>
+            <p class="report-section-sub">Look up any student by enrollment number and generate a full placement &amp; academic profile card</p>
+        </div>
+    </div>
+
+    <div class="card spr-cta-card">
+        <div class="syr-cta-inner">
+            <div class="syr-cta-icon" style="background: linear-gradient(135deg, #7c3aed, #3b5bdb);">
+                <i class="fa-solid fa-id-card"></i>
+            </div>
+            <div class="syr-cta-body">
+                <h4 class="syr-cta-title">Generate Student Profile Report</h4>
+                <p class="syr-cta-desc">Enter an enrollment number to instantly view a student's placement status, CGPA, skills, contact details, and company information — printable and exportable.</p>
+            </div>
+            <div class="syr-cta-form">
+                <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Enter enrollment number:</p>
+                <form action="index.php" method="GET" style="display:flex; gap:0.5rem; align-items:center;">
+                    <input type="hidden" name="module" value="report">
+                    <input type="hidden" name="action" value="studentProfile">
+                    <input type="text" name="enroll" class="form-control" id="ctaEnrollInput"
+                           placeholder="e.g. 250114305001"
+                           autocomplete="off"
+                           style="width:200px; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;">
+                    <button type="submit" class="btn btn-primary" id="btnCtaProfile">
+                        <i class="fa-solid fa-arrow-right"></i> Find
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div><!-- /.container -->
 
 
