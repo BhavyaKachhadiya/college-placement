@@ -8,7 +8,7 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         <?php
-            if ($currentModule === 'placement') echo 'Student Placement &amp; Internships';
+            if ($currentModule === 'placement' || $currentModule === 'student' || $currentModule === 'students') echo 'Students &amp; Placement Management';
             elseif ($currentModule === 'workshop') echo 'Workshop &amp; Seminar Management';
             elseif ($currentModule === 'internship') echo 'Industry Internships';
             elseif ($currentModule === 'mou') echo 'Institutional MOU Management';
@@ -70,30 +70,19 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
             <?php endif; ?>
         </a>
 
-        <!-- MOUs -->
-        <a href="index.php?module=mou"
-           class="sidebar-nav-item <?= $currentModule === 'mou' ? 'active' : '' ?>"
-           aria-current="<?= $currentModule === 'mou' ? 'page' : 'false' ?>">
-            <span class="nav-item-icon">
-                <i class="fa-solid fa-handshake"></i>
-            </span>
-            <span class="nav-item-label">MOUs</span>
-            <span class="nav-item-desc">Institutional Agreements</span>
-            <?php if ($currentModule === 'mou'): ?>
-                <span class="nav-active-indicator"></span>
-            <?php endif; ?>
-        </a>
+        <!-- Student Section -->
+        <div class="sidebar-section-label" style="margin-top: 0.75rem;">Student Section</div>
 
-        <!-- Workshops -->
-        <a href="index.php?module=workshop"
-           class="sidebar-nav-item <?= $currentModule === 'workshop' ? 'active' : '' ?>"
-           aria-current="<?= $currentModule === 'workshop' ? 'page' : 'false' ?>">
+        <!-- Students Directory -->
+        <a href="index.php?module=student"
+           class="sidebar-nav-item <?= ($currentModule === 'student' || $currentModule === 'students') ? 'active' : '' ?>"
+           aria-current="<?= ($currentModule === 'student' || $currentModule === 'students') ? 'page' : 'false' ?>">
             <span class="nav-item-icon">
-                <i class="fa-solid fa-chalkboard-user"></i>
+                <i class="fa-solid fa-users-line"></i>
             </span>
-            <span class="nav-item-label">Workshops</span>
-            <span class="nav-item-desc">Seminars &amp; Events</span>
-            <?php if ($currentModule === 'workshop'): ?>
+            <span class="nav-item-label">Students</span>
+            <span class="nav-item-desc">Directory &amp; Profiles</span>
+            <?php if ($currentModule === 'student' || $currentModule === 'students'): ?>
                 <span class="nav-active-indicator"></span>
             <?php endif; ?>
         </a>
@@ -126,6 +115,37 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
             <?php endif; ?>
         </a>
 
+        <!-- Institutional Section -->
+        <div class="sidebar-section-label" style="margin-top: 0.75rem;">Institutional</div>
+
+        <!-- MOUs -->
+        <a href="index.php?module=mou"
+           class="sidebar-nav-item <?= $currentModule === 'mou' ? 'active' : '' ?>"
+           aria-current="<?= $currentModule === 'mou' ? 'page' : 'false' ?>">
+            <span class="nav-item-icon">
+                <i class="fa-solid fa-handshake"></i>
+            </span>
+            <span class="nav-item-label">MOUs</span>
+            <span class="nav-item-desc">Institutional Agreements</span>
+            <?php if ($currentModule === 'mou'): ?>
+                <span class="nav-active-indicator"></span>
+            <?php endif; ?>
+        </a>
+
+        <!-- Workshops -->
+        <a href="index.php?module=workshop"
+           class="sidebar-nav-item <?= $currentModule === 'workshop' ? 'active' : '' ?>"
+           aria-current="<?= $currentModule === 'workshop' ? 'page' : 'false' ?>">
+            <span class="nav-item-icon">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </span>
+            <span class="nav-item-label">Workshops</span>
+            <span class="nav-item-desc">Seminars &amp; Events</span>
+            <?php if ($currentModule === 'workshop'): ?>
+                <span class="nav-active-indicator"></span>
+            <?php endif; ?>
+        </a>
+
         <!-- Divider before Reports -->
         <div style="height:1px; background: rgba(255,255,255,0.06); margin: 0.5rem 0.5rem;"></div>
 
@@ -151,7 +171,7 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
 
     <!-- Context-sensitive Action Buttons -->
     <div class="sidebar-actions">
-        <?php if ($currentModule === 'placement'): ?>
+        <?php if ($currentModule === 'placement' || $currentModule === 'student' || $currentModule === 'students'): ?>
             <button class="sidebar-action-btn sidebar-action-primary" onclick="openAddStudentModal(); closeSidebar();" id="sidebarBtnAddStudent">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Add Student</span>
@@ -232,7 +252,8 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
             <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
             <span class="breadcrumb-module">
                 <?php
-                    if ($currentModule === 'placement') echo '<i class="fa-solid fa-user-graduate"></i> Placement';
+                    if ($currentModule === 'student' || $currentModule === 'students') echo '<i class="fa-solid fa-users-line"></i> Students Directory';
+                    elseif ($currentModule === 'placement') echo '<i class="fa-solid fa-user-graduate"></i> Placement';
                     elseif ($currentModule === 'workshop') echo '<i class="fa-solid fa-chalkboard-user"></i> Workshops';
                     elseif ($currentModule === 'internship') echo '<i class="fa-solid fa-laptop-code"></i> Internships';
                     elseif ($currentModule === 'mou') echo '<i class="fa-solid fa-handshake"></i> MOUs';
@@ -247,7 +268,7 @@ $currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['modu
 
         <!-- Header CTA Buttons -->
         <div class="header-actions">
-            <?php if ($currentModule === 'placement'): ?>
+            <?php if ($currentModule === 'placement' || $currentModule === 'student' || $currentModule === 'students'): ?>
                 <button class="btn btn-light" onclick="openBulkModal()" id="btnBulkImport">
                     <i class="fa-solid fa-file-csv"></i> Bulk Import
                 </button>

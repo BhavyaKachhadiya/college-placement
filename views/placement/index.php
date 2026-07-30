@@ -146,12 +146,13 @@
                 return;
             }
 
+            const matchedGrs         = (PLACEMENT_SUGGESTIONS.gr_nos || []).filter(g => g.toLowerCase().includes(q)).slice(0, 5);
             const matchedNames       = (PLACEMENT_SUGGESTIONS.names || []).filter(n => n.toLowerCase().includes(q)).slice(0, 5);
             const matchedCompanies   = (PLACEMENT_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
             const matchedRoles       = (PLACEMENT_SUGGESTIONS.designations || []).filter(r => r.toLowerCase().includes(q)).slice(0, 5);
             const matchedDepts       = (PLACEMENT_SUGGESTIONS.departments || []).filter(d => !q || d.toLowerCase().includes(q)).slice(0, 5);
 
-            const totalMatches = matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
+            const totalMatches = matchedGrs.length + matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
 
             if (totalMatches === 0) {
                 dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching suggestions found</div>`;
@@ -160,6 +161,17 @@
             }
 
             let html = '';
+
+            if (matchedGrs.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-id-card"></i> GR Numbers</div>`;
+                matchedGrs.forEach(g => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(g)}">
+                                <i class="fa-solid fa-id-card suggestion-icon"></i>
+                                <span class="suggestion-text">GR: ${highlightMatch(g, q)}</span>
+                                <span class="suggestion-badge">GR No</span>
+                             </div>`;
+                });
+            }
 
             if (matchedNames.length > 0) {
                 html += `<div class="suggestion-group-header"><i class="fa-solid fa-user-graduate"></i> Student Names</div>`;
@@ -282,7 +294,8 @@
             <table class="data-table placement-table">
                 <thead>
                     <tr>
-                        <th>Enrollment No</th>
+                        <th>GR No.</th>
+                        <th>Enrollment No.</th>
                         <th>Student Profile</th>
                         <th>Department</th>
                         <th>CGPA</th>
@@ -296,7 +309,7 @@
                 <tbody>
                     <?php if (empty($students)): ?>
                         <tr>
-                            <td colspan="9" class="text-center py-5">
+                            <td colspan="10" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="fa-solid fa-user-slash empty-icon"></i>
                                     <h3>No Student Records Found</h3>
@@ -317,6 +330,13 @@
                                 elseif ($st['placement_status'] === 'Business') $rowClass = 'row-business';
                             ?>
                             <tr class="<?= $rowClass ?>">
+                                <td>
+                                    <?php if (!empty($st['gr_no'])): ?>
+                                        <span class="badge badge-info" style="font-size:0.85rem; font-weight:600;"><?= htmlspecialchars($st['gr_no']) ?></span>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="mou-id"><?= htmlspecialchars($st['enroll_no']) ?></span>
                                 </td>

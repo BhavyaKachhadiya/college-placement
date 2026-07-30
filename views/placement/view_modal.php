@@ -4,6 +4,7 @@
         <div class="modal-content">
             <div class="modal-header header-view">
                 <div class="view-header-title">
+                    <span class="badge badge-outline-light" id="viewStGrNo" style="margin-right: 6px;">GR No</span>
                     <span class="badge badge-outline-light" id="viewStEnroll">Enroll #</span>
                     <h3 id="viewStName">Student Profile</h3>
                 </div>
@@ -12,6 +13,14 @@
             
             <div class="modal-body py-4">
                 <div class="view-grid">
+                    <div class="view-card">
+                        <div class="view-card-label"><i class="fa-solid fa-id-card"></i> GR Number</div>
+                        <div class="view-card-value" id="viewStGrNoVal">N/A</div>
+                    </div>
+                    <div class="view-card">
+                        <div class="view-card-label"><div class="fa-solid fa-id-card"></div> Enrollment Number</div>
+                        <div class="view-card-value" id="viewStEnrollVal">N/A</div>
+                    </div>
                     <div class="view-card">
                         <div class="view-card-label"><i class="fa-solid fa-building-columns"></i> Department</div>
                         <div class="view-card-value" id="viewStDepartment">N/A</div>

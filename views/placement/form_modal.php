@@ -15,12 +15,17 @@
                     <h4 class="form-section-header"><i class="fa-solid fa-id-card"></i> Student Academic & Personal Details</h4>
                     
                     <div class="form-row">
-                        <div class="form-group col-6">
+                        <div class="form-group col-4">
+                            <label for="st_gr_no" class="form-label">GR Number</label>
+                            <input type="text" name="gr_no" id="st_gr_no" class="form-control" placeholder="e.g. 105488">
+                            <small class="form-hint">General Register No. (e.g. 105488)</small>
+                        </div>
+                        <div class="form-group col-4">
                             <label for="st_enroll_no" class="form-label required">Enrollment Number</label>
                             <input type="text" name="enroll_no" id="st_enroll_no" class="form-control" placeholder="e.g. 250114305001" required>
-                            <small class="form-hint">Format: YY + College Code + Branch Code + Division + Roll No</small>
+                            <small class="form-hint">Format: 12-digit Enrollment Code</small>
                         </div>
-                        <div class="form-group col-6">
+                        <div class="form-group col-4">
                             <label for="st_name" class="form-label required">Full Student Name</label>
                             <input type="text" name="name" id="st_name" class="form-control" placeholder="e.g. Aarav Mehta" required>
                         </div>

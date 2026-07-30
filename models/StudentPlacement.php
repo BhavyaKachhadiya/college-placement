@@ -16,8 +16,9 @@ class StudentPlacement {
         $params = [];
 
         if (!empty($search)) {
-            $sql .= " AND (`enroll_no` LIKE :search1 OR `name` LIKE :search2 OR `email` LIKE :search3 OR `company_name` LIKE :search4 OR `skills` LIKE :search5)";
+            $sql .= " AND (`gr_no` LIKE :search0 OR `enroll_no` LIKE :search1 OR `name` LIKE :search2 OR `email` LIKE :search3 OR `company_name` LIKE :search4 OR `skills` LIKE :search5)";
             $searchVal = '%' . $search . '%';
+            $params[':search0'] = $searchVal;
             $params[':search1'] = $searchVal;
             $params[':search2'] = $searchVal;
             $params[':search3'] = $searchVal;
@@ -69,6 +70,11 @@ class StudentPlacement {
             $params[':status'] = $statusFilter;
         }
 
+        $sqlGrs = "SELECT DISTINCT `gr_no` FROM `students` {$where} AND `gr_no` IS NOT NULL AND TRIM(`gr_no`) != '' ORDER BY `gr_no` ASC LIMIT 15";
+        $stmt0 = $this->db->prepare($sqlGrs);
+        $stmt0->execute($params);
+        $gr_nos = $stmt0->fetchAll(PDO::FETCH_COLUMN);
+
         $sqlNames = "SELECT DISTINCT `name` FROM `students` {$where} AND `name` IS NOT NULL AND TRIM(`name`) != '' ORDER BY `name` ASC LIMIT 15";
         $stmt1 = $this->db->prepare($sqlNames);
         $stmt1->execute($params);
@@ -90,6 +96,7 @@ class StudentPlacement {
         $departments = $stmt4->fetchAll(PDO::FETCH_COLUMN);
 
         return [
+            'gr_nos'       => $gr_nos ?: [],
             'names'        => $names ?: [],
             'companies'    => $companies ?: [],
             'designations' => $designations ?: [],
@@ -106,12 +113,12 @@ class StudentPlacement {
         $hashedPassword = password_hash($enrollNo, PASSWORD_BCRYPT);
 
         $sql = "INSERT INTO `students` (
-            `enroll_no`, `name`, `email`, `phone`, `gender`, `dob`, 
+            `gr_no`, `enroll_no`, `name`, `email`, `phone`, `gender`, `dob`, 
             `department`, `semester`, `cgpa`, `passing_year`, `address`, 
             `skills`, `password`, `placement_status`, `company_name`, `designation`, 
             `package_lpa`, `offer_letter_file`
         ) VALUES (
-            :enroll_no, :name, :email, :phone, :gender, :dob, 
+            :gr_no, :enroll_no, :name, :email, :phone, :gender, :dob, 
             :department, :semester, :cgpa, :passing_year, :address, 
             :skills, :password, :placement_status, :company_name, :designation, 
             :package_lpa, :offer_letter_file
@@ -119,6 +126,7 @@ class StudentPlacement {
 
         $stmt = $this->db->prepare($sql);
         $result = $stmt->execute([
+            ':gr_no'            => trim($data['gr_no'] ?? ''),
             ':enroll_no'        => $enrollNo,
             ':name'             => trim($data['name']),
             ':email'            => trim($data['email'] ?? ''),
@@ -147,6 +155,7 @@ class StudentPlacement {
      */
     public function update($id, $data) {
         $sql = "UPDATE `students` SET 
+            `gr_no` = :gr_no,
             `enroll_no` = :enroll_no,
             `name` = :name,
             `email` = :email,
@@ -166,6 +175,7 @@ class StudentPlacement {
 
         $params = [
             ':id'               => (int)$id,
+            ':gr_no'            => trim($data['gr_no'] ?? ''),
             ':enroll_no'        => trim($data['enroll_no']),
             ':name'             => trim($data['name']),
             ':email'            => trim($data['email'] ?? ''),

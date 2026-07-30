@@ -16,7 +16,7 @@ $module = isset($_POST['module']) ? trim($_POST['module']) : (isset($_GET['modul
 $action = isset($_POST['action']) ? trim($_POST['action']) : (isset($_GET['action']) ? trim($_GET['action']) : 'index');
 
 // Dispatch Request to target Controller
-if ($module === 'placement') {
+if ($module === 'placement' || $module === 'student' || $module === 'students') {
     $controller = new StudentPlacementController();
 } elseif ($module === 'workshop') {
     $controller = new WorkshopController();

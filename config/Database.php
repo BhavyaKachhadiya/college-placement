@@ -223,6 +223,7 @@ class Database {
         // Students Table
         $studentSql = "CREATE TABLE IF NOT EXISTS `students` (
             `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `gr_no` VARCHAR(100) DEFAULT NULL,
             `enroll_no` VARCHAR(100) NOT NULL UNIQUE,
             `name` VARCHAR(150) NOT NULL,
             `email` VARCHAR(150) DEFAULT NULL,
@@ -243,21 +244,35 @@ class Database {
             `offer_letter_file` VARCHAR(255) DEFAULT NULL,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
             `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX (`gr_no`),
             INDEX (`passing_year`),
             INDEX (`department`),
             INDEX (`placement_status`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
         self::$conn->exec($studentSql);
 
+        // Auto-migration: ensure gr_no column exists in existing tables & populate missing GR numbers
+        try {
+            self::$conn->exec("ALTER TABLE `students` ADD COLUMN `gr_no` VARCHAR(100) DEFAULT NULL AFTER `id`");
+        } catch (PDOException $e) {
+            // Column already exists
+        }
+
+        try {
+            self::$conn->exec("UPDATE `students` SET `gr_no` = CONCAT('105', 487 + `id`) WHERE `gr_no` IS NULL OR TRIM(`gr_no`) = ''");
+        } catch (PDOException $e) {
+            // Migration query complete
+        }
+
         $stmtS = self::$conn->query("SELECT COUNT(*) FROM `students`");
         if ($stmtS->fetchColumn() == 0) {
-            $studentSeedSql = "INSERT INTO `students` (`enroll_no`, `name`, `email`, `phone`, `gender`, `dob`, `department`, `semester`, `cgpa`, `passing_year`, `address`, `skills`, `placement_status`, `company_name`, `designation`, `package_lpa`) VALUES
-            ('250114305001', 'Aarav Mehta', 'aarav.m@college.edu', '+91 98111 11111', 'Male', '2004-05-12', 'Computer Engineering', 8, 8.95, 2026, 'Ahmedabad, Gujarat', 'Python, React, Node.js, AWS', 'Placed', 'Tech Corp Solutions', 'Software Engineer', 12.50),
-            ('250114305002', 'Ananya Sharma', 'ananya.s@college.edu', '+91 98222 22222', 'Female', '2004-08-22', 'Computer Engineering', 8, 9.20, 2026, 'Mumbai, Maharashtra', 'Machine Learning, PyTorch, C++', 'Placed', 'Global Data Analytics Inc.', 'Data Scientist', 15.00),
-            ('250114405015', 'Rohan Verma', 'rohan.v@college.edu', '+91 98333 33333', 'Male', '2004-01-30', 'Information Technology', 8, 8.40, 2026, 'Pune, Maharashtra', 'Java, Spring Boot, MySQL', 'Internship', 'NextGen Robotics Lab', 'RPA Developer Intern', 6.00),
-            ('240114305045', 'Priya Desai', 'priya.d@college.edu', '+91 98444 44444', 'Female', '2003-11-14', 'Computer Engineering', 8, 9.45, 2025, 'Surat, Gujarat', 'Algorithms, Data Structures, Java', 'Higher Studies', 'Stanford University (MS in CS)', 'Postgraduate Student', NULL),
-            ('240114405088', 'Karan Shah', 'karan.s@college.edu', '+91 98555 55555', 'Male', '2003-03-18', 'Information Technology', 8, 7.80, 2025, 'Vadodara, Gujarat', 'UI/UX Design, Figma, Flutter', 'Business', 'DevCraft Studios (Founder)', 'Co-Founder & CEO', NULL),
-            ('250114305099', 'Vikram Singh', 'vikram.s@college.edu', '+91 98666 66666', 'Male', '2004-09-05', 'Computer Engineering', 8, 7.10, 2026, 'Indore, MP', 'HTML, CSS, PHP, SQL', 'Unplaced', NULL, NULL, NULL)";
+            $studentSeedSql = "INSERT INTO `students` (`gr_no`, `enroll_no`, `name`, `email`, `phone`, `gender`, `dob`, `department`, `semester`, `cgpa`, `passing_year`, `address`, `skills`, `placement_status`, `company_name`, `designation`, `package_lpa`) VALUES
+            ('105488', '250114305001', 'Aarav Mehta', 'aarav.m@college.edu', '+91 98111 11111', 'Male', '2004-05-12', 'Computer Engineering', 8, 8.95, 2026, 'Ahmedabad, Gujarat', 'Python, React, Node.js, AWS', 'Placed', 'Tech Corp Solutions', 'Software Engineer', 12.50),
+            ('105489', '250114305002', 'Ananya Sharma', 'ananya.s@college.edu', '+91 98222 22222', 'Female', '2004-08-22', 'Computer Engineering', 8, 9.20, 2026, 'Mumbai, Maharashtra', 'Machine Learning, PyTorch, C++', 'Placed', 'Global Data Analytics Inc.', 'Data Scientist', 15.00),
+            ('105490', '250114405015', 'Rohan Verma', 'rohan.v@college.edu', '+91 98333 33333', 'Male', '2004-01-30', 'Information Technology', 8, 8.40, 2026, 'Pune, Maharashtra', 'Java, Spring Boot, MySQL', 'Internship', 'NextGen Robotics Lab', 'RPA Developer Intern', 6.00),
+            ('105491', '240114305045', 'Priya Desai', 'priya.d@college.edu', '+91 98444 44444', 'Female', '2003-11-14', 'Computer Engineering', 8, 9.45, 2025, 'Surat, Gujarat', 'Algorithms, Data Structures, Java', 'Higher Studies', 'Stanford University (MS in CS)', 'Postgraduate Student', NULL),
+            ('105492', '240114405088', 'Karan Shah', 'karan.s@college.edu', '+91 98555 55555', 'Male', '2003-03-18', 'Information Technology', 8, 7.80, 2025, 'Vadodara, Gujarat', 'UI/UX Design, Figma, Flutter', 'Business', 'DevCraft Studios (Founder)', 'Co-Founder & CEO', NULL),
+            ('105493', '250114305099', 'Vikram Singh', 'vikram.s@college.edu', '+91 98666 66666', 'Male', '2004-09-05', 'Computer Engineering', 8, 7.10, 2026, 'Indore, MP', 'HTML, CSS, PHP, SQL', 'Unplaced', NULL, NULL, NULL)";
             self::$conn->exec($studentSeedSql);
         }
     }

@@ -467,6 +467,7 @@ function openAddStudentModal() {
     document.getElementById('stFileNameDisplay').innerHTML = 'Click or drag & drop Offer Letter / Certificate (PDF, DOCX, PNG)';
     document.getElementById('stExistingFileContainer').style.display = 'none';
 
+    document.getElementById('st_gr_no').value = '';
     document.getElementById('st_passing_year').value = new Date().getFullYear();
     document.getElementById('st_semester').value = '8';
     document.getElementById('st_placement_status').value = 'Unplaced';
@@ -509,7 +510,10 @@ function viewStudent(id) {
         .then(res => {
             if (!res.success) { showToast(res.message || 'Error fetching student profile', 'error'); return; }
             const data = res.data;
+            document.getElementById('viewStGrNo').innerText = data.gr_no ? `GR: ${data.gr_no}` : 'No GR No';
             document.getElementById('viewStEnroll').innerText = `Enroll #${data.enroll_no}`;
+            document.getElementById('viewStGrNoVal').innerText = data.gr_no ? data.gr_no : 'N/A';
+            document.getElementById('viewStEnrollVal').innerText = data.enroll_no ? data.enroll_no : 'N/A';
             document.getElementById('viewStName').innerText = data.name;
             document.getElementById('viewStDepartment').innerText = data.department;
             document.getElementById('viewStCgpa').innerText = `Sem ${data.semester} | CGPA ${data.cgpa}`;
@@ -560,6 +564,7 @@ function editStudent(id) {
             document.getElementById('stFormAction').value = 'update';
             document.getElementById('stId').value = data.id;
 
+            document.getElementById('st_gr_no').value = data.gr_no || '';
             document.getElementById('st_enroll_no').value = data.enroll_no;
             document.getElementById('st_name').value = data.name;
             document.getElementById('st_email').value = data.email || '';
