@@ -38,6 +38,101 @@ class StudentPlacementController {
     }
 
     /**
+     * Render Dedicated Student Profile View
+     */
+    public function studentProfile() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Restrict student user strictly to their OWN student record
+        if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
+            $id = (int)($_SESSION['user_id'] ?? 0);
+        } else {
+            $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        }
+
+        $student = null;
+        if ($id > 0) {
+            $student = $this->placementModel->getById($id);
+        }
+
+        if (!$student && isset($_SESSION['user_id'])) {
+            $student = $this->placementModel->getById((int)$_SESSION['user_id']);
+        }
+
+        if (!$student) {
+            header('Location: index.php?module=auth&action=login');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/layouts/header.php';
+        require_once __DIR__ . '/../views/placement/profile.php';
+        require_once __DIR__ . '/../views/placement/form_modal.php';
+        require_once __DIR__ . '/../views/layouts/footer.php';
+    }
+
+    /**
+     * Render Student Account Settings Page
+     */
+    public function studentSettings() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $studentId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+        $student = null;
+
+        if ($studentId > 0) {
+            $student = $this->placementModel->getById($studentId);
+        }
+
+        if (!$student) {
+            header('Location: index.php?module=auth&action=login');
+            exit;
+        }
+
+        require_once __DIR__ . '/../views/layouts/header.php';
+        require_once __DIR__ . '/../views/placement/settings.php';
+        require_once __DIR__ . '/../views/layouts/footer.php';
+    }
+
+    /**
+     * Handle Student Self-Update from Settings Page
+     */
+    public function updateSelf() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        try {
+            $studentId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+            if (!$studentId) throw new Exception("Unauthorized student session.");
+
+            $existing = $this->placementModel->getById($studentId);
+            if (!$existing) throw new Exception("Student record not found.");
+
+            $input = $this->sanitizeInput($_POST);
+
+            // Keep personal, academic & career placement status fields intact, update ONLY allowed editable fields (skills & address)
+            $data = $existing;
+            $data['skills']  = $input['skills'] ?? $existing['skills'];
+            $data['address'] = $input['address'] ?? $existing['address'];
+
+            $success = $this->placementModel->update($studentId, $data);
+            if ($success) {
+                header('Location: index.php?module=student&action=studentSettings&msg=updated');
+                exit;
+            } else {
+                throw new Exception("Failed to update student profile settings.");
+            }
+        } catch (Exception $e) {
+            header('Location: index.php?module=student&action=studentSettings&error=' . urlencode($e->getMessage()));
+            exit;
+        }
+    }
+
+    /**
      * AJAX Endpoint to return JSON data for single student
      */
     public function getJson() {

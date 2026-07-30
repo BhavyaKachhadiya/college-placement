@@ -1,9 +1,14 @@
 <?php
 /**
  * College Management Portal - Front Controller Router (MVC Pattern)
- * Modules: Dashboard, MOU Management, Workshop Management, Student Placement & Internships
+ * Modules: Auth (Login/Logout), Dashboard, MOU Management, Workshop Management, Student Placement & Internships
  */
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/controllers/AuthController.php';
 require_once __DIR__ . '/controllers/DashboardController.php';
 require_once __DIR__ . '/controllers/MouController.php';
 require_once __DIR__ . '/controllers/WorkshopController.php';
@@ -14,6 +19,38 @@ require_once __DIR__ . '/controllers/ReportController.php';
 // Determine Module and Action (Support both POST and GET)
 $module = isset($_POST['module']) ? trim($_POST['module']) : (isset($_GET['module']) ? trim($_GET['module']) : 'dashboard');
 $action = isset($_POST['action']) ? trim($_POST['action']) : (isset($_GET['action']) ? trim($_GET['action']) : 'index');
+
+// 1. Handle Authentication Module
+if ($module === 'auth' || $module === 'login') {
+    $authController = new AuthController();
+    if ($action === 'processLogin') {
+        $authController->processLogin();
+    } elseif ($action === 'logout') {
+        $authController->logout();
+    } else {
+        $authController->login();
+    }
+    exit;
+}
+
+// 2. Authentication Protection Guard & Role Access Isolation
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: index.php?module=auth&action=login');
+    exit;
+}
+
+// Student Role Isolation: Students can only view their own profile & settings
+if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
+    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson'];
+    if ($module !== 'student' && $module !== 'students') {
+        header('Location: index.php?module=student&action=studentProfile');
+        exit;
+    }
+    if (!in_array($action, $allowedStudentActions)) {
+        header('Location: index.php?module=student&action=studentProfile');
+        exit;
+    }
+}
 
 // Dispatch Request to target Controller
 if ($module === 'placement' || $module === 'student' || $module === 'students') {
@@ -74,6 +111,18 @@ switch ($action) {
     case 'studentProfile':
         if (method_exists($controller, 'studentProfile')) {
             $controller->studentProfile();
+        }
+        break;
+
+    case 'studentSettings':
+        if (method_exists($controller, 'studentSettings')) {
+            $controller->studentSettings();
+        }
+        break;
+
+    case 'updateSelf':
+        if (method_exists($controller, 'updateSelf')) {
+            $controller->updateSelf();
         }
         break;
 
