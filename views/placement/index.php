@@ -70,11 +70,15 @@
             </div>
 
             <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                <div class="search-input-group">
+            <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <div class="search-input-group autocomplete-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" name="search" class="form-control search-control" 
+                    <input type="text" name="search" id="placementSearchInput" class="form-control search-control" 
                            placeholder="Search enroll no, name, company, skills..." 
-                           value="<?= htmlspecialchars($search) ?>">
+                           value="<?= htmlspecialchars($search) ?>"
+                           autocomplete="off" spellcheck="false">
+                    <!-- Live Floating Suggestions Dropdown -->
+                    <div class="search-suggestions-dropdown" id="placementSuggestionsDropdown"></div>
                 </div>
 
                 <div class="select-group">
@@ -106,10 +110,150 @@
     </div>
 
     <script>
+    const PLACEMENT_SUGGESTIONS = <?= json_encode($suggestions ?? ['names'=>[], 'companies'=>[], 'designations'=>[], 'departments'=>[]]) ?>;
+
     function submitPostYear(yearVal) {
         document.getElementById('postYearInput').value = yearVal;
         document.getElementById('placementFilterForm').submit();
     }
+
+    // Live Autocomplete Popup for Placement Search
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('placementSearchInput');
+        const dropdown    = document.getElementById('placementSuggestionsDropdown');
+        let activeIndex   = -1;
+
+        if (!searchInput || !dropdown) return;
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return escapeHtml(text);
+            const escapedText = escapeHtml(text);
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+            return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+        }
+
+        function renderSuggestions(query) {
+            const q = query.trim().toLowerCase();
+
+            const matchedNames       = (PLACEMENT_SUGGESTIONS.names || []).filter(n => !q || n.toLowerCase().includes(q)).slice(0, 5);
+            const matchedCompanies   = (PLACEMENT_SUGGESTIONS.companies || []).filter(c => !q || c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedRoles       = (PLACEMENT_SUGGESTIONS.designations || []).filter(r => !q || r.toLowerCase().includes(q)).slice(0, 5);
+            const matchedDepts       = (PLACEMENT_SUGGESTIONS.departments || []).filter(d => !q || d.toLowerCase().includes(q)).slice(0, 5);
+
+            const totalMatches = matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
+
+            if (totalMatches === 0) {
+                dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching suggestions found</div>`;
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+
+            if (matchedNames.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-user-graduate"></i> Student Names</div>`;
+                matchedNames.forEach(n => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(n)}">
+                                <i class="fa-solid fa-user suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(n, q)}</span>
+                                <span class="suggestion-badge">Student</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedCompanies.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-building"></i> Companies</div>`;
+                matchedCompanies.forEach(c => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(c)}">
+                                <i class="fa-solid fa-city suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(c, q)}</span>
+                                <span class="suggestion-badge badge-company">Company</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedRoles.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-briefcase"></i> Roles / Designations</div>`;
+                matchedRoles.forEach(r => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(r)}">
+                                <i class="fa-solid fa-user-tie suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(r, q)}</span>
+                                <span class="suggestion-badge badge-instructor">Role</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedDepts.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-building-columns"></i> Departments</div>`;
+                matchedDepts.forEach(d => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(d)}">
+                                <i class="fa-solid fa-graduation-cap suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(d, q)}</span>
+                                <span class="suggestion-badge">Dept</span>
+                             </div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+            activeIndex = -1;
+
+            dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    searchInput.value = this.getAttribute('data-value');
+                    dropdown.style.display = 'none';
+                    document.getElementById('placementFilterForm').submit();
+                });
+            });
+        }
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', function() { renderSuggestions(this.value); });
+        searchInput.addEventListener('focus', function() { renderSuggestions(this.value); });
+
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.suggestion-item');
+            if (!items.length || dropdown.style.display === 'none') return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    items[activeIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
     </script>
 
     <!-- Data Display Section with Visual Color Coding -->

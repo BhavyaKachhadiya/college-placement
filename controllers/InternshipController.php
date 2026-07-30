@@ -18,10 +18,11 @@ class InternshipController {
         $department  = isset($_REQUEST['department'])  ? trim($_REQUEST['department'])  : '';
 
         // Always filter by Internship status
-        $students = $this->model->getAll($search, $passing_year, $department, 'Internship');
-        $years    = $this->model->getPassingYears();
-        $depts    = $this->model->getDepartments();
-        $stats    = $this->model->getStats(); // full stats for KPI context
+        $students    = $this->model->getAll($search, $passing_year, $department, 'Internship');
+        $years       = $this->model->getPassingYears();
+        $depts       = $this->model->getDepartments();
+        $stats       = $this->model->getStats(); // full stats for KPI context
+        $suggestions = $this->model->getSuggestions('Internship');
 
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/internship/index.php';

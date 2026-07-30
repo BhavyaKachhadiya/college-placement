@@ -56,7 +56,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
             <form action="index.php" method="POST" class="spr-search-form" id="sprSearchForm">
                 <input type="hidden" name="module" value="report">
                 <input type="hidden" name="action" value="studentProfile">
-                <div class="spr-input-wrap">
+                <div class="spr-input-wrap autocomplete-wrapper">
                     <i class="fa-solid fa-id-badge spr-input-icon"></i>
                     <input type="text" name="enroll" id="sprEnrollInput"
                            class="form-control spr-enroll-input"
@@ -64,6 +64,8 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                            value="<?= htmlspecialchars($searchEnroll) ?>"
                            autocomplete="off" autocorrect="off"
                            spellcheck="false">
+                    <!-- Live Floating Suggestions Dropdown -->
+                    <div class="search-suggestions-dropdown" id="sprEnrollDropdown"></div>
                     <?php if ($searchEnroll): ?>
                         <button type="button" class="spr-clear-btn" onclick="document.getElementById('sprEnrollInput').value=''; this.closest('form').submit();" title="Clear">
                             <i class="fa-solid fa-xmark"></i>
@@ -75,6 +77,110 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                 </button>
             </form>
         </div>
+
+        <script>
+        const ENROLL_SUGGESTIONS = <?= json_encode($enrollSuggestions ?? []) ?>;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const input    = document.getElementById('sprEnrollInput');
+            const dropdown = document.getElementById('sprEnrollDropdown');
+            let activeIndex = -1;
+
+            if (!input || !dropdown) return;
+
+            function escapeHtml(str) {
+                return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            }
+
+            function highlightMatch(text, query) {
+                if (!query) return escapeHtml(text);
+                const escapedText  = escapeHtml(text);
+                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex        = new RegExp(`(${escapedQuery})`, 'gi');
+                return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+            }
+
+            function render(query) {
+                const q = query.trim().toLowerCase();
+                const matches = (ENROLL_SUGGESTIONS || []).filter(s => {
+                    if (!q) return true;
+                    return (s.enroll_no && s.enroll_no.toLowerCase().includes(q)) || (s.name && s.name.toLowerCase().includes(q));
+                }).slice(0, 8);
+
+                if (matches.length === 0) {
+                    dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-id-badge"></i> No matching students found</div>`;
+                    dropdown.style.display = 'block';
+                    return;
+                }
+
+                let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Student Enrollment Numbers</div>`;
+                matches.forEach(s => {
+                    html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
+                                <i class="fa-solid fa-id-card suggestion-icon"></i>
+                                <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
+                                    <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
+                                    <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
+                                </div>
+                                <span class="suggestion-badge">Select</span>
+                             </div>`;
+                });
+
+                dropdown.innerHTML = html;
+                dropdown.style.display = 'block';
+                activeIndex = -1;
+
+                dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        input.value = this.getAttribute('data-enroll');
+                        dropdown.style.display = 'none';
+                        document.getElementById('sprSearchForm').submit();
+                    });
+                });
+            }
+
+            function updateActiveItem(items) {
+                items.forEach((item, index) => {
+                    if (index === activeIndex) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+
+            input.addEventListener('input', function() { render(this.value); });
+            input.addEventListener('focus', function() { render(this.value); });
+
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.suggestion-item');
+                if (!items.length || dropdown.style.display === 'none') return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex + 1) % items.length;
+                    updateActiveItem(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex - 1 + items.length) % items.length;
+                    updateActiveItem(items);
+                } else if (e.key === 'Enter') {
+                    if (activeIndex >= 0 && items[activeIndex]) {
+                        e.preventDefault();
+                        items[activeIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+        </script>
 
         <?php if ($error): ?>
             <div class="spr-not-found">

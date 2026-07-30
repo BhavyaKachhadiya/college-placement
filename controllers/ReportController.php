@@ -117,6 +117,9 @@ class ReportController {
         // ── Available Passing Years for the picker ──────────────────────────
         $availableYears = $this->placementModel->getPassingYears();
 
+        // ── Enrollment Suggestions for student profile search ─────────────
+        $enrollSuggestions = $this->query("SELECT `enroll_no`, `name`, `department` FROM `students` WHERE `enroll_no` IS NOT NULL AND TRIM(`enroll_no`) != '' ORDER BY `enroll_no` ASC");
+
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/report/index.php';
         require_once __DIR__ . '/../views/layouts/footer.php';
@@ -212,9 +215,6 @@ class ReportController {
      * URL: index.php?module=report&action=studentProfile[&enroll=250114305001]
      */
     public function studentProfile() {
-        // queryPrepared & view rendering handled inside the view itself
-        // (We pass $this so the view can call $this->queryPrepared directly)
-        // Instead, resolve the query here and pass results to view.
         $searchEnroll = isset($_POST['enroll']) ? trim($_POST['enroll']) : (isset($_GET['enroll']) ? trim($_GET['enroll']) : '');
         $student      = null;
 
@@ -225,6 +225,9 @@ class ReportController {
             );
             $student = $rows[0] ?? null;
         }
+
+        // Enrollment Suggestions
+        $enrollSuggestions = $this->query("SELECT `enroll_no`, `name`, `department` FROM `students` WHERE `enroll_no` IS NOT NULL AND TRIM(`enroll_no`) != '' ORDER BY `enroll_no` ASC");
 
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/report/student_profile.php';

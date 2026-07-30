@@ -509,13 +509,17 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
             </div>
             <div class="syr-cta-form">
                 <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Enter enrollment number:</p>
-                <form action="index.php" method="POST" style="display:flex; gap:0.5rem; align-items:center;">
+                <form action="index.php" method="POST" id="ctaProfileForm" style="display:flex; gap:0.5rem; align-items:center;">
                     <input type="hidden" name="module" value="report">
                     <input type="hidden" name="action" value="studentProfile">
-                    <input type="text" name="enroll" class="form-control" id="ctaEnrollInput"
-                           placeholder="e.g. 250114305001"
-                           autocomplete="off"
-                           style="width:200px; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;">
+                    <div class="autocomplete-wrapper" style="position:relative;">
+                        <input type="text" name="enroll" class="form-control" id="ctaEnrollInput"
+                               placeholder="e.g. 250114305001"
+                               autocomplete="off" spellcheck="false"
+                               style="width:220px; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;">
+                        <!-- Live Floating Suggestions Dropdown -->
+                        <div class="search-suggestions-dropdown" id="ctaEnrollDropdown"></div>
+                    </div>
                     <button type="submit" class="btn btn-primary" id="btnCtaProfile">
                         <i class="fa-solid fa-arrow-right"></i> Find
                     </button>
@@ -525,6 +529,110 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
     </div>
 
 </div><!-- /.container -->
+
+<script>
+const ENROLL_SUGGESTIONS = <?= json_encode($enrollSuggestions ?? []) ?>;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const input    = document.getElementById('ctaEnrollInput');
+    const dropdown = document.getElementById('ctaEnrollDropdown');
+    let activeIndex = -1;
+
+    if (!input || !dropdown) return;
+
+    function escapeHtml(str) {
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const escapedText  = escapeHtml(text);
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex        = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+    }
+
+    function render(query) {
+        const q = query.trim().toLowerCase();
+        const matches = (ENROLL_SUGGESTIONS || []).filter(s => {
+            if (!q) return true;
+            return (s.enroll_no && s.enroll_no.toLowerCase().includes(q)) || (s.name && s.name.toLowerCase().includes(q));
+        }).slice(0, 8);
+
+        if (matches.length === 0) {
+            dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-id-badge"></i> No matching students found</div>`;
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Student Enrollment Numbers</div>`;
+        matches.forEach(s => {
+            html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
+                        <i class="fa-solid fa-id-card suggestion-icon"></i>
+                        <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
+                            <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
+                            <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
+                        </div>
+                        <span class="suggestion-badge">Select</span>
+                     </div>`;
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.style.display = 'block';
+        activeIndex = -1;
+
+        dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                input.value = this.getAttribute('data-enroll');
+                dropdown.style.display = 'none';
+                document.getElementById('ctaProfileForm').submit();
+            });
+        });
+    }
+
+    function updateActiveItem(items) {
+        items.forEach((item, index) => {
+            if (index === activeIndex) {
+                item.classList.add('active');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    input.addEventListener('input', function() { render(this.value); });
+    input.addEventListener('focus', function() { render(this.value); });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    input.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.suggestion-item');
+        if (!items.length || dropdown.style.display === 'none') return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateActiveItem(items);
+        } else if (e.key === 'Enter') {
+            if (activeIndex >= 0 && items[activeIndex]) {
+                e.preventDefault();
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.style.display = 'none';
+        }
+    });
+});
+</script>
 
 
 <!-- ── CHART.JS ── -->

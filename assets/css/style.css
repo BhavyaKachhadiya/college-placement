@@ -3563,6 +3563,18 @@ a.spr-contact-row:hover { color: var(--brand-600); }
 /* ==========================================================================
    Live Autocomplete Floating Suggestions Dropdown (Command Palette Style)
    ========================================================================== */
+/* Allow cards containing autocomplete wrappers to overflow so floating suggestions are never clipped */
+.card,
+.card.spr-search-card,
+.card.spr-cta-card,
+.card.syr-cta-card,
+.card.syr-picker-card,
+.filter-wrapper,
+.syr-cta-inner,
+.spr-search-inner {
+    overflow: visible !important;
+}
+
 .autocomplete-wrapper {
     position: relative;
     min-width: 320px;

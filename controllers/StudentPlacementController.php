@@ -26,6 +26,7 @@ class StudentPlacementController {
         $years       = $this->placementModel->getPassingYears();
         $departments = $this->placementModel->getDepartments();
         $stats       = $this->placementModel->getStats();
+        $suggestions = $this->placementModel->getSuggestions();
 
         // Render views
         require_once __DIR__ . '/../views/layouts/header.php';

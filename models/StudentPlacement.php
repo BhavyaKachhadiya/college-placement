@@ -59,6 +59,45 @@ class StudentPlacement {
     }
 
     /**
+     * Fetch grouped distinct suggestions for Placement/Internship searches
+     */
+    public function getSuggestions($statusFilter = '') {
+        $where = "WHERE 1=1";
+        $params = [];
+        if (!empty($statusFilter) && $statusFilter !== 'all') {
+            $where .= " AND `placement_status` = :status";
+            $params[':status'] = $statusFilter;
+        }
+
+        $sqlNames = "SELECT DISTINCT `name` FROM `students` {$where} AND `name` IS NOT NULL AND TRIM(`name`) != '' ORDER BY `name` ASC LIMIT 15";
+        $stmt1 = $this->db->prepare($sqlNames);
+        $stmt1->execute($params);
+        $names = $stmt1->fetchAll(PDO::FETCH_COLUMN);
+
+        $sqlCompanies = "SELECT DISTINCT `company_name` FROM `students` {$where} AND `company_name` IS NOT NULL AND TRIM(`company_name`) != '' ORDER BY `company_name` ASC LIMIT 15";
+        $stmt2 = $this->db->prepare($sqlCompanies);
+        $stmt2->execute($params);
+        $companies = $stmt2->fetchAll(PDO::FETCH_COLUMN);
+
+        $sqlRoles = "SELECT DISTINCT `designation` FROM `students` {$where} AND `designation` IS NOT NULL AND TRIM(`designation`) != '' ORDER BY `designation` ASC LIMIT 15";
+        $stmt3 = $this->db->prepare($sqlRoles);
+        $stmt3->execute($params);
+        $designations = $stmt3->fetchAll(PDO::FETCH_COLUMN);
+
+        $sqlDepts = "SELECT DISTINCT `department` FROM `students` {$where} AND `department` IS NOT NULL AND TRIM(`department`) != '' ORDER BY `department` ASC LIMIT 15";
+        $stmt4 = $this->db->prepare($sqlDepts);
+        $stmt4->execute($params);
+        $departments = $stmt4->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'names'        => $names ?: [],
+            'companies'    => $companies ?: [],
+            'designations' => $designations ?: [],
+            'departments'  => $departments ?: []
+        ];
+    }
+
+    /**
      * Create single student record
      */
     public function create($data) {
