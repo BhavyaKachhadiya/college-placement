@@ -11,9 +11,9 @@ require_once __DIR__ . '/controllers/StudentPlacementController.php';
 require_once __DIR__ . '/controllers/InternshipController.php';
 require_once __DIR__ . '/controllers/ReportController.php';
 
-// Determine Module and Action
-$module = isset($_GET['module']) ? trim($_GET['module']) : 'dashboard';
-$action = isset($_GET['action']) ? trim($_GET['action']) : 'index';
+// Determine Module and Action (Support both POST and GET)
+$module = isset($_POST['module']) ? trim($_POST['module']) : (isset($_GET['module']) ? trim($_GET['module']) : 'dashboard');
+$action = isset($_POST['action']) ? trim($_POST['action']) : (isset($_GET['action']) ? trim($_GET['action']) : 'index');
 
 // Dispatch Request to target Controller
 if ($module === 'placement') {

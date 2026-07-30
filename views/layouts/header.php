@@ -1,5 +1,5 @@
 <?php
-$currentModule = isset($_GET['module']) ? $_GET['module'] : (isset($_POST['module']) ? $_POST['module'] : 'dashboard');
+$currentModule = isset($_POST['module']) ? $_POST['module'] : (isset($_GET['module']) ? $_GET['module'] : 'dashboard');
 ?>
 <!DOCTYPE html>
 <html lang="en">

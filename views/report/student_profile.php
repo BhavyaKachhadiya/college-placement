@@ -1,6 +1,6 @@
 <?php
 // Variables $student and $searchEnroll are set by ReportController::studentProfile()
-$searchEnroll = $searchEnroll ?? (isset($_GET['enroll']) ? trim($_GET['enroll']) : '');
+$searchEnroll = $searchEnroll ?? (isset($_POST['enroll']) ? trim($_POST['enroll']) : (isset($_GET['enroll']) ? trim($_GET['enroll']) : ''));
 $student      = $student ?? null;
 $error        = ($searchEnroll !== '' && $student === null)
     ? "No student found with enrollment number <strong>" . htmlspecialchars($searchEnroll) . "</strong>."
@@ -53,7 +53,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <span>Search by Enrollment Number</span>
             </div>
-            <form action="index.php" method="GET" class="spr-search-form" id="sprSearchForm">
+            <form action="index.php" method="POST" class="spr-search-form" id="sprSearchForm">
                 <input type="hidden" name="module" value="report">
                 <input type="hidden" name="action" value="studentProfile">
                 <div class="spr-input-wrap">

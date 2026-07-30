@@ -215,7 +215,7 @@ class ReportController {
         // queryPrepared & view rendering handled inside the view itself
         // (We pass $this so the view can call $this->queryPrepared directly)
         // Instead, resolve the query here and pass results to view.
-        $searchEnroll = isset($_GET['enroll']) ? trim($_GET['enroll']) : '';
+        $searchEnroll = isset($_POST['enroll']) ? trim($_POST['enroll']) : (isset($_GET['enroll']) ? trim($_GET['enroll']) : '');
         $student      = null;
 
         if ($searchEnroll !== '') {

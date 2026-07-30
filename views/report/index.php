@@ -472,7 +472,7 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
             </div>
             <div class="syr-cta-form">
                 <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Or enter a year manually:</p>
-                <form action="index.php" method="GET" style="display:flex; gap:0.5rem; align-items:center;">
+                <form action="index.php" method="POST" style="display:flex; gap:0.5rem; align-items:center;">
                     <input type="hidden" name="module" value="report">
                     <input type="hidden" name="action" value="studentReport">
                     <input type="number" name="year" class="form-control" id="ctaYearInput"
@@ -509,7 +509,7 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
             </div>
             <div class="syr-cta-form">
                 <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Enter enrollment number:</p>
-                <form action="index.php" method="GET" style="display:flex; gap:0.5rem; align-items:center;">
+                <form action="index.php" method="POST" style="display:flex; gap:0.5rem; align-items:center;">
                     <input type="hidden" name="module" value="report">
                     <input type="hidden" name="action" value="studentProfile">
                     <input type="text" name="enroll" class="form-control" id="ctaEnrollInput"
