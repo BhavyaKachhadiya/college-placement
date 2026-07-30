@@ -16,6 +16,7 @@ require_once __DIR__ . '/controllers/StudentPlacementController.php';
 require_once __DIR__ . '/controllers/InternshipController.php';
 require_once __DIR__ . '/controllers/ReportController.php';
 require_once __DIR__ . '/controllers/CompanyController.php';
+require_once __DIR__ . '/controllers/JobApplicationController.php';
 
 // Determine Module and Action (Support both POST and GET)
 $module = isset($_POST['module']) ? trim($_POST['module']) : (isset($_GET['module']) ? trim($_GET['module']) : 'dashboard');
@@ -42,8 +43,8 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 
 // Student Role Isolation: Students can view their own profile, settings & company vacancies
 if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
-    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson', 'index', 'deleteResume'];
-    $allowedStudentModules = ['student', 'students', 'company', 'companies'];
+    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson', 'index', 'deleteResume', 'apply'];
+    $allowedStudentModules = ['student', 'students', 'company', 'companies', 'application'];
     if (!in_array($module, $allowedStudentModules) || !in_array($action, $allowedStudentActions)) {
         header('Location: index.php?module=student&action=studentProfile');
         exit;
@@ -63,6 +64,8 @@ if ($module === 'placement' || $module === 'student' || $module === 'students') 
     $controller = new ReportController();
 } elseif ($module === 'company' || $module === 'companies') {
     $controller = new CompanyController();
+} elseif ($module === 'application') {
+    $controller = new JobApplicationController();
 } else {
     // Default → Dashboard
     $controller = new DashboardController();
@@ -136,6 +139,18 @@ switch ($action) {
     case 'deleteResume':
         if (method_exists($controller, 'deleteResume')) {
             $controller->deleteResume();
+        }
+        break;
+
+    case 'apply':
+        if (method_exists($controller, 'apply')) {
+            $controller->apply();
+        }
+        break;
+
+    case 'updateStatus':
+        if (method_exists($controller, 'updateStatus')) {
+            $controller->updateStatus();
         }
         break;
 

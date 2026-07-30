@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/Company.php';
+require_once __DIR__ . '/../models/JobApplication.php';
 
 class CompanyController {
     private $companyModel;
@@ -22,6 +23,12 @@ class CompanyController {
 
         $companies = $this->companyModel->getAll($search, $status);
         $stats     = $this->companyModel->getStats();
+
+        $appliedCompanyIds = [];
+        if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
+            $applicationModel = new JobApplication();
+            $appliedCompanyIds = $applicationModel->getAppliedCompanyIds($_SESSION['user_id']);
+        }
 
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/company/index.php';

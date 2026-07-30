@@ -146,6 +146,20 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
                     <?php endif; ?>
                 </a>
 
+                <!-- Job Applications -->
+                <a href="index.php?module=application"
+                    class="sidebar-nav-item <?= $currentModule === 'application' ? 'active' : '' ?>"
+                    aria-current="<?= $currentModule === 'application' ? 'page' : 'false' ?>">
+                    <span class="nav-item-icon">
+                        <i class="fa-solid fa-file-signature"></i>
+                    </span>
+                    <span class="nav-item-label">Job Applications</span>
+                    <span class="nav-item-desc">Student Submissions</span>
+                    <?php if ($currentModule === 'application'): ?>
+                        <span class="nav-active-indicator"></span>
+                    <?php endif; ?>
+                </a>
+
                 <!-- Students Directory -->
                 <a href="index.php?module=student"
                     class="sidebar-nav-item <?= ($currentModule === 'student' || $currentModule === 'students') ? 'active' : '' ?>"

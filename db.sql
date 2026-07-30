@@ -131,3 +131,17 @@ INSERT INTO `students` (`gr_no`, `enroll_no`, `name`, `email`, `phone`, `gender`
 ('105491', '240114305045', 'Priya Desai', 'priya.d@college.edu', '+91 98444 44444', 'Female', '2003-11-14', 'Computer Engineering', 8, 9.45, 2025, 'Surat, Gujarat', 'Algorithms, Data Structures, Java', 'Higher Studies', 'Stanford University (MS in CS)', 'Postgraduate Student', NULL),
 ('105492', '240114405088', 'Karan Shah', 'karan.s@college.edu', '+91 98555 55555', 'Male', '2003-03-18', 'Information Technology', 8, 7.80, 2025, 'Vadodara, Gujarat', 'UI/UX Design, Figma, Flutter', 'Business', 'DevCraft Studios (Founder)', 'Co-Founder & CEO', NULL),
 ('105493', '250114305099', 'Vikram Singh', 'vikram.s@college.edu', '+91 98666 66666', 'Male', '2004-09-05', 'Computer Engineering', 8, 7.10, 2026, 'Indore, MP', 'HTML, CSS, PHP, SQL', 'Unplaced', NULL, NULL, NULL);
+
+-- Applications Table
+CREATE TABLE IF NOT EXISTS `applications` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `student_id` INT NOT NULL,
+  `company_id` INT NOT NULL,
+  `status` ENUM('Pending', 'Reviewed', 'Accepted', 'Rejected') NOT NULL DEFAULT 'Pending',
+  `applied_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`) ON DELETE CASCADE,
+  UNIQUE KEY `unique_application` (`student_id`, `company_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

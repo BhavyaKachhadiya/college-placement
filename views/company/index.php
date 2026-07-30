@@ -234,16 +234,19 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
                         <!-- Contact Email / Apply Link (Student Only) -->
                         <?php if (!$isAdmin): ?>
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                <?php if (!empty($comp['apply_link'])): ?>
-                                    <a href="<?= htmlspecialchars($comp['apply_link']) ?>" target="_blank" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 0.35rem;">
-                                        <i class="fa-solid fa-paper-plane"></i> Apply Now
-                                    </a>
-                                <?php elseif (!empty($comp['contact_email'])): ?>
-                                    <a href="mailto:<?= htmlspecialchars($comp['contact_email']) ?>" class="btn btn-light btn-sm" style="display: flex; align-items: center; gap: 0.35rem;">
-                                        <i class="fa-solid fa-envelope"></i> <?= htmlspecialchars($comp['contact_email']) ?>
-                                    </a>
+                                <?php if (in_array($comp['id'], $appliedCompanyIds)): ?>
+                                    <button type="button" class="btn btn-success btn-sm" disabled style="display: flex; align-items: center; gap: 0.35rem; cursor: not-allowed; opacity: 0.8;">
+                                        <i class="fa-solid fa-check-circle"></i> Already Applied
+                                    </button>
+                                <?php elseif ($comp['status'] !== 'Closed'): ?>
+                                    <form action="index.php?module=application&action=apply" method="POST" onsubmit="return confirm('Are you sure you want to apply? Your profile and resume will be submitted for this position.');" style="margin: 0;">
+                                        <input type="hidden" name="company_id" value="<?= (int)$comp['id'] ?>">
+                                        <button type="submit" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 0.35rem;">
+                                            <i class="fa-solid fa-paper-plane"></i> Apply Now
+                                        </button>
+                                    </form>
                                 <?php else: ?>
-                                    <span style="font-size: 0.78rem; font-weight: 600; color: var(--neutral-500);">Contact T&amp;P Cell</span>
+                                    <span style="font-size: 0.78rem; font-weight: 600; color: var(--rose-600);">Applications Closed</span>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
