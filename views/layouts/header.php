@@ -79,13 +79,13 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
             <?php if ($isStudent): ?>
                 <!-- STUDENT NAVIGATION -->
                 <a href="index.php?module=student&action=studentProfile"
-                    class="sidebar-nav-item <?= ($currentAction === 'studentProfile' || $currentAction === '' || $currentAction === 'index') ? 'active' : '' ?>">
+                    class="sidebar-nav-item <?= ($currentModule === 'student' && ($currentAction === 'studentProfile' || $currentAction === '' || $currentAction === 'index')) ? 'active' : '' ?>">
                     <span class="nav-item-icon">
                         <i class="fa-solid fa-user-graduate"></i>
                     </span>
                     <span class="nav-item-label">My Profile</span>
                     <span class="nav-item-desc">Personal &amp; Academic</span>
-                    <?php if ($currentAction === 'studentProfile' || $currentAction === '' || $currentAction === 'index'): ?>
+                    <?php if ($currentModule === 'student' && ($currentAction === 'studentProfile' || $currentAction === '' || $currentAction === 'index')): ?>
                         <span class="nav-active-indicator"></span>
                     <?php endif; ?>
                 </a>
@@ -318,44 +318,47 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
                 <span class="hamburger-line"></span>
             </button>
 
-            <!-- Brand -->
-            <div class="brand-logo">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-building-columns"></i>
+            <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
+                <!-- Brand -->
+                <div class="brand-logo">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <div class="brand-text">
+                        <h1>College Portal</h1>
+                        <span class="sub-title"><?= $isStudent ? 'Student Portal' : 'Institutional Management System' ?></span>
+                    </div>
                 </div>
-                <div class="brand-text">
-                    <h1>College Portal</h1>
-                    <span
-                        class="sub-title"><?= $isStudent ? 'Student Portal' : 'Institutional Management System' ?></span>
-                </div>
-            </div>
 
-            <!-- Active Module Breadcrumb -->
-            <?php if (!$isStudent): ?>
-                <div class="header-breadcrumb">
-                    <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
-                    <span class="breadcrumb-module">
-                        <?php
-                        if ($currentModule === 'student' || $currentModule === 'students')
-                            echo '<i class="fa-solid fa-users-line"></i> Students Directory';
-                        elseif ($currentModule === 'placement')
-                            echo '<i class="fa-solid fa-user-graduate"></i> Placement';
-                        elseif ($currentModule === 'workshop')
-                            echo '<i class="fa-solid fa-chalkboard-user"></i> Workshops';
-                        elseif ($currentModule === 'internship')
-                            echo '<i class="fa-solid fa-laptop-code"></i> Internships';
-                        elseif ($currentModule === 'mou')
-                            echo '<i class="fa-solid fa-handshake"></i> MOUs';
-                        elseif ($currentModule === 'report')
-                            echo '<i class="fa-solid fa-chart-line"></i> Reports';
-                        elseif ($currentModule === 'company' || $currentModule === 'companies')
-                            echo '<i class="fa-solid fa-building"></i> Companies &amp; Vacancies';
-                        else
-                            echo '<i class="fa-solid fa-gauge-high"></i> Dashboard';
-                        ?>
-                    </span>
-                </div>
-            <?php endif; ?>
+
+
+                <!-- Active Module Breadcrumb -->
+                <?php if (!$isStudent): ?>
+                    <div class="header-breadcrumb">
+                        <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+                        <span class="breadcrumb-module">
+                            <?php
+                            if ($currentModule === 'student' || $currentModule === 'students')
+                                echo '<i class="fa-solid fa-users-line"></i> Students Directory';
+                            elseif ($currentModule === 'placement')
+                                echo '<i class="fa-solid fa-user-graduate"></i> Placement';
+                            elseif ($currentModule === 'workshop')
+                                echo '<i class="fa-solid fa-chalkboard-user"></i> Workshops';
+                            elseif ($currentModule === 'internship')
+                                echo '<i class="fa-solid fa-laptop-code"></i> Internships';
+                            elseif ($currentModule === 'mou')
+                                echo '<i class="fa-solid fa-handshake"></i> MOUs';
+                            elseif ($currentModule === 'report')
+                                echo '<i class="fa-solid fa-chart-line"></i> Reports';
+                            elseif ($currentModule === 'company' || $currentModule === 'companies')
+                                echo '<i class="fa-solid fa-building"></i> Companies &amp; Vacancies';
+                            else
+                                echo '<i class="fa-solid fa-gauge-high"></i> Dashboard';
+                            ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
+            </div>
 
             <?php if (!$isStudent): ?>
                 <?php if ($currentModule === 'company' || $currentModule === 'companies'): ?>
