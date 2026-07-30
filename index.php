@@ -15,6 +15,7 @@ require_once __DIR__ . '/controllers/WorkshopController.php';
 require_once __DIR__ . '/controllers/StudentPlacementController.php';
 require_once __DIR__ . '/controllers/InternshipController.php';
 require_once __DIR__ . '/controllers/ReportController.php';
+require_once __DIR__ . '/controllers/CompanyController.php';
 
 // Determine Module and Action (Support both POST and GET)
 $module = isset($_POST['module']) ? trim($_POST['module']) : (isset($_GET['module']) ? trim($_GET['module']) : 'dashboard');
@@ -39,14 +40,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 
-// Student Role Isolation: Students can only view their own profile & settings
+// Student Role Isolation: Students can view their own profile, settings & company vacancies
 if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
-    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson'];
-    if ($module !== 'student' && $module !== 'students') {
-        header('Location: index.php?module=student&action=studentProfile');
-        exit;
-    }
-    if (!in_array($action, $allowedStudentActions)) {
+    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson', 'index'];
+    $allowedStudentModules = ['student', 'students', 'company', 'companies'];
+    if (!in_array($module, $allowedStudentModules) || !in_array($action, $allowedStudentActions)) {
         header('Location: index.php?module=student&action=studentProfile');
         exit;
     }
@@ -63,6 +61,8 @@ if ($module === 'placement' || $module === 'student' || $module === 'students') 
     $controller = new MouController();
 } elseif ($module === 'report') {
     $controller = new ReportController();
+} elseif ($module === 'company' || $module === 'companies') {
+    $controller = new CompanyController();
 } else {
     // Default → Dashboard
     $controller = new DashboardController();

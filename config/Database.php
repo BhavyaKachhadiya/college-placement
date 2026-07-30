@@ -275,5 +275,39 @@ class Database {
             ('105493', '250114305099', 'Vikram Singh', 'vikram.s@college.edu', '+91 98666 66666', 'Male', '2004-09-05', 'Computer Engineering', 8, 7.10, 2026, 'Indore, MP', 'HTML, CSS, PHP, SQL', 'Unplaced', NULL, NULL, NULL)";
             self::$conn->exec($studentSeedSql);
         }
+
+        // Companies / Placement Drives Table
+        $companySql = "CREATE TABLE IF NOT EXISTS `companies` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `company_name` VARCHAR(255) NOT NULL,
+            `industry` VARCHAR(100) DEFAULT 'IT & Software',
+            `job_role` VARCHAR(255) NOT NULL,
+            `vacancies` INT DEFAULT 1,
+            `package_lpa` DECIMAL(5,2) DEFAULT NULL,
+            `location` VARCHAR(255) DEFAULT 'Ahmedabad',
+            `eligibility` VARCHAR(255) DEFAULT NULL,
+            `deadline` DATE DEFAULT NULL,
+            `description` TEXT DEFAULT NULL,
+            `contact_email` VARCHAR(255) DEFAULT NULL,
+            `apply_link` VARCHAR(255) DEFAULT NULL,
+            `status` ENUM('Active', 'Upcoming', 'Closed') NOT NULL DEFAULT 'Active',
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX (`status`),
+            INDEX (`company_name`),
+            INDEX (`deadline`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+        self::$conn->exec($companySql);
+
+        $stmtComp = self::$conn->query("SELECT COUNT(*) FROM `companies`");
+        if ($stmtComp->fetchColumn() == 0) {
+            $companySeedSql = "INSERT INTO `companies` (`company_name`, `industry`, `job_role`, `vacancies`, `package_lpa`, `location`, `eligibility`, `deadline`, `description`, `contact_email`, `apply_link`, `status`) VALUES
+            ('Tech Corp Solutions', 'IT & Software', 'Software Engineer Trainee', 15, 12.50, 'GIFT City, Gandhinagar', 'B.E. Computer / IT, Minimum 6.5 CGPA, No Active Backlogs', '2026-08-30', 'Join our core engineering team working on scalable cloud infrastructure, full-stack microservices, and AI integrations. Training provided.', 'careers@techcorp.com', 'https://techcorp.com/careers/freshers-2026', 'Active'),
+            ('Global Data Analytics Inc.', 'Data & AI', 'Associate Data Engineer', 10, 15.00, 'Electronic City, Bengaluru / Hybrid', 'B.E. CE/IT/EC, Strong SQL, Python & Data Warehousing basics', '2026-09-15', 'High-growth data consulting firm seeking motivated fresh graduates for big data pipeline development and BI dashboard creation.', 'campus@globalanalytics.io', 'https://globalanalytics.io/campus-drive', 'Active'),
+            ('CyberPulse Systems', 'Cybersecurity', 'Security Analyst Intern', 8, 8.00, 'Infocity, Gandhinagar', 'B.E. ALL Branches, Certifications in Ethical Hacking/Network Security preferred', '2026-08-20', 'Entry-level Security Operations Center (SOC) analyst role monitoring threat intelligence and conducting vulnerability assessment.', 'jobs@cyberpulse.sec', 'https://cyberpulse.sec/internships', 'Active'),
+            ('Nexus Automation Labs', 'Robotics & Embedded Systems', 'Embedded Firmware Developer', 5, 9.50, 'Pune, Maharashtra', 'B.E. EC / Electrical / Mechanical, C/C++ & Microcontrollers', '2026-09-30', 'R&D role in smart industrial IoT hardware, microcontroller programming, and real-time operating systems.', 'hr@nexusautomation.in', 'https://nexusautomation.in/careers', 'Upcoming'),
+            ('Apex Cloud Technologies', 'Cloud Services', 'Cloud DevOps Engineer', 12, 11.00, 'Remote / Work From Anywhere', 'B.E. CE / IT / EC, AWS / Azure Practitioner certification is a plus', '2026-07-25', 'Deploy and manage infrastructure as code, CI/CD automation pipelines, and Docker Kubernetes clusters.', 'recruitment@apexcloud.com', 'https://apexcloud.com/jobs', 'Closed')";
+            self::$conn->exec($companySeedSql);
+        }
     }
 }

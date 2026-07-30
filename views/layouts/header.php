@@ -90,6 +90,18 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
                     <?php endif; ?>
                 </a>
 
+                <a href="index.php?module=company"
+                    class="sidebar-nav-item <?= ($currentModule === 'company' || $currentModule === 'companies') ? 'active' : '' ?>">
+                    <span class="nav-item-icon">
+                        <i class="fa-solid fa-building"></i>
+                    </span>
+                    <span class="nav-item-label">Companies &amp; Vacancies</span>
+                    <span class="nav-item-desc">Placement Drives &amp; Openings</span>
+                    <?php if ($currentModule === 'company' || $currentModule === 'companies'): ?>
+                        <span class="nav-active-indicator"></span>
+                    <?php endif; ?>
+                </a>
+
                 <a href="index.php?module=student&action=studentSettings"
                     class="sidebar-nav-item <?= $currentAction === 'studentSettings' ? 'active' : '' ?>">
                     <span class="nav-item-icon">
@@ -119,6 +131,20 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
 
                 <!-- Student Section -->
                 <div class="sidebar-section-label" style="margin-top: 0.75rem;">Student Section</div>
+
+                <!-- Companies & Drives -->
+                <a href="index.php?module=company"
+                    class="sidebar-nav-item <?= ($currentModule === 'company' || $currentModule === 'companies') ? 'active' : '' ?>"
+                    aria-current="<?= ($currentModule === 'company' || $currentModule === 'companies') ? 'page' : 'false' ?>">
+                    <span class="nav-item-icon">
+                        <i class="fa-solid fa-building"></i>
+                    </span>
+                    <span class="nav-item-label">Companies &amp; Drives</span>
+                    <span class="nav-item-desc">Recruitment Vacancies</span>
+                    <?php if ($currentModule === 'company' || $currentModule === 'companies'): ?>
+                        <span class="nav-active-indicator"></span>
+                    <?php endif; ?>
+                </a>
 
                 <!-- Students Directory -->
                 <a href="index.php?module=student"
@@ -322,6 +348,8 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
                             echo '<i class="fa-solid fa-handshake"></i> MOUs';
                         elseif ($currentModule === 'report')
                             echo '<i class="fa-solid fa-chart-line"></i> Reports';
+                        elseif ($currentModule === 'company' || $currentModule === 'companies')
+                            echo '<i class="fa-solid fa-building"></i> Companies &amp; Vacancies';
                         else
                             echo '<i class="fa-solid fa-gauge-high"></i> Dashboard';
                         ?>
@@ -330,7 +358,11 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
             <?php endif; ?>
 
             <?php if (!$isStudent): ?>
-                <?php if ($currentModule === 'placement' || $currentModule === 'student' || $currentModule === 'students'): ?>
+                <?php if ($currentModule === 'company' || $currentModule === 'companies'): ?>
+                    <button class="btn btn-primary" onclick="openAddCompanyModal()" id="btnAddCompanyHeader">
+                        <i class="fa-solid fa-plus"></i> Add Company Drive
+                    </button>
+                <?php elseif ($currentModule === 'placement' || $currentModule === 'student' || $currentModule === 'students'): ?>
                     <button class="btn btn-light" onclick="openBulkModal()" id="btnBulkImport">
                         <i class="fa-solid fa-file-csv"></i> Bulk Import
                     </button>
