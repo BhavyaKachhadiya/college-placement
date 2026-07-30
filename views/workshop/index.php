@@ -124,10 +124,16 @@
 
         function renderSuggestions(query) {
             const q = query.trim().toLowerCase();
-            
-            const matchedTitles      = (WORKSHOP_SUGGESTIONS.titles || []).filter(t => !q || t.toLowerCase().includes(q)).slice(0, 5);
-            const matchedCompanies   = (WORKSHOP_SUGGESTIONS.companies || []).filter(c => !q || c.toLowerCase().includes(q)).slice(0, 5);
-            const matchedInstructors = (WORKSHOP_SUGGESTIONS.instructors || []).filter(i => !q || i.toLowerCase().includes(q)).slice(0, 5);
+            // OPTIMIZATION: Do not show suggestions when empty
+            if (!q || q.length < 1) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matchedTitles      = (WORKSHOP_SUGGESTIONS.titles || []).filter(t => t.toLowerCase().includes(q)).slice(0, 5);
+            const matchedCompanies   = (WORKSHOP_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedInstructors = (WORKSHOP_SUGGESTIONS.instructors || []).filter(i => i.toLowerCase().includes(q)).slice(0, 5);
 
             const totalMatches = matchedTitles.length + matchedCompanies.length + matchedInstructors.length;
 

@@ -79,12 +79,11 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
         </div>
 
         <script>
-        const ENROLL_SUGGESTIONS = <?= json_encode($enrollSuggestions ?? []) ?>;
-
         document.addEventListener('DOMContentLoaded', function() {
             const input    = document.getElementById('sprEnrollInput');
             const dropdown = document.getElementById('sprEnrollDropdown');
             let activeIndex = -1;
+            let debounceTimer = null;
 
             if (!input || !dropdown) return;
 
@@ -100,42 +99,54 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                 return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
             }
 
-            function render(query) {
-                const q = query.trim().toLowerCase();
-                const matches = (ENROLL_SUGGESTIONS || []).filter(s => {
-                    if (!q) return true;
-                    return (s.enroll_no && s.enroll_no.toLowerCase().includes(q)) || (s.name && s.name.toLowerCase().includes(q));
-                }).slice(0, 8);
-
-                if (matches.length === 0) {
-                    dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-id-badge"></i> No matching students found</div>`;
-                    dropdown.style.display = 'block';
+            function fetchSuggestions(query) {
+                const q = query.trim();
+                // OPTIMIZATION: Do not show suggestions when empty
+                if (!q || q.length < 1) {
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
                     return;
                 }
 
-                let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Student Enrollment Numbers</div>`;
-                matches.forEach(s => {
-                    html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
-                                <i class="fa-solid fa-id-card suggestion-icon"></i>
-                                <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
-                                    <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
-                                    <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
-                                </div>
-                                <span class="suggestion-badge">Select</span>
-                             </div>`;
-                });
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    fetch('index.php?module=report&action=suggestEnrollment&q=' + encodeURIComponent(q))
+                        .then(res => res.json())
+                        .then(matches => {
+                            if (!matches || matches.length === 0) {
+                                dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-id-badge"></i> No matching students found</div>`;
+                                dropdown.style.display = 'block';
+                                return;
+                            }
 
-                dropdown.innerHTML = html;
-                dropdown.style.display = 'block';
-                activeIndex = -1;
+                            let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Matching Students</div>`;
+                            matches.forEach(s => {
+                                html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
+                                            <i class="fa-solid fa-id-card suggestion-icon"></i>
+                                            <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
+                                                <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
+                                                <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
+                                            </div>
+                                            <span class="suggestion-badge">Select</span>
+                                         </div>`;
+                            });
 
-                dropdown.querySelectorAll('.suggestion-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        input.value = this.getAttribute('data-enroll');
-                        dropdown.style.display = 'none';
-                        document.getElementById('sprSearchForm').submit();
-                    });
-                });
+                            dropdown.innerHTML = html;
+                            dropdown.style.display = 'block';
+                            activeIndex = -1;
+
+                            dropdown.querySelectorAll('.suggestion-item').forEach(item => {
+                                item.addEventListener('click', function() {
+                                    input.value = this.getAttribute('data-enroll');
+                                    dropdown.style.display = 'none';
+                                    document.getElementById('sprSearchForm').submit();
+                                });
+                            });
+                        })
+                        .catch(() => {
+                            dropdown.style.display = 'none';
+                        });
+                }, 120);
             }
 
             function updateActiveItem(items) {
@@ -149,8 +160,8 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                 });
             }
 
-            input.addEventListener('input', function() { render(this.value); });
-            input.addEventListener('focus', function() { render(this.value); });
+            input.addEventListener('input', function() { fetchSuggestions(this.value); });
+            input.addEventListener('focus', function() { fetchSuggestions(this.value); });
 
             document.addEventListener('click', function(e) {
                 if (!input.contains(e.target) && !dropdown.contains(e.target)) {

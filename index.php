@@ -77,6 +77,13 @@ switch ($action) {
         }
         break;
 
+    case 'suggestEnrollment':
+        if (method_exists($controller, 'suggestEnrollment')) {
+            $controller->suggestEnrollment();
+            exit;
+        }
+        break;
+
     default:
         $controller->index();
         break;

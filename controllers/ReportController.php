@@ -117,9 +117,6 @@ class ReportController {
         // ── Available Passing Years for the picker ──────────────────────────
         $availableYears = $this->placementModel->getPassingYears();
 
-        // ── Enrollment Suggestions for student profile search ─────────────
-        $enrollSuggestions = $this->query("SELECT `enroll_no`, `name`, `department` FROM `students` WHERE `enroll_no` IS NOT NULL AND TRIM(`enroll_no`) != '' ORDER BY `enroll_no` ASC");
-
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/report/index.php';
         require_once __DIR__ . '/../views/layouts/footer.php';
@@ -226,12 +223,36 @@ class ReportController {
             $student = $rows[0] ?? null;
         }
 
-        // Enrollment Suggestions
-        $enrollSuggestions = $this->query("SELECT `enroll_no`, `name`, `department` FROM `students` WHERE `enroll_no` IS NOT NULL AND TRIM(`enroll_no`) != '' ORDER BY `enroll_no` ASC");
-
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/report/student_profile.php';
         require_once __DIR__ . '/../views/layouts/footer.php';
+    }
+
+    /**
+     * AJAX Endpoint for Enrollment Autocomplete Suggestions (Optimized, max 8 records)
+     * URL: index.php?module=report&action=suggestEnrollment&q=2401
+     */
+    public function suggestEnrollment() {
+        header('Content-Type: application/json');
+        $q = isset($_GET['q']) ? trim($_GET['q']) : '';
+
+        if (mb_strlen($q) < 1) {
+            echo json_encode([]);
+            exit;
+        }
+
+        $term = '%' . $q . '%';
+        $rows = $this->queryPrepared(
+            "SELECT `enroll_no`, `name`, `department`
+             FROM `students`
+             WHERE `enroll_no` LIKE :q1 OR `name` LIKE :q2 OR `department` LIKE :q3
+             ORDER BY `enroll_no` ASC
+             LIMIT 8",
+            [':q1' => $term, ':q2' => $term, ':q3' => $term]
+        );
+
+        echo json_encode($rows ?: []);
+        exit;
     }
 
     private function query($sql) {

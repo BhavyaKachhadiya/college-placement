@@ -147,11 +147,17 @@
 
         function renderSuggestions(query) {
             const q = query.trim().toLowerCase();
+            // OPTIMIZATION: Do not show suggestions when empty
+            if (!q || q.length < 1) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
 
-            const matchedNames       = (INTERN_SUGGESTIONS.names || []).filter(n => !q || n.toLowerCase().includes(q)).slice(0, 5);
-            const matchedCompanies   = (INTERN_SUGGESTIONS.companies || []).filter(c => !q || c.toLowerCase().includes(q)).slice(0, 5);
-            const matchedRoles       = (INTERN_SUGGESTIONS.designations || []).filter(r => !q || r.toLowerCase().includes(q)).slice(0, 5);
-            const matchedDepts       = (INTERN_SUGGESTIONS.departments || []).filter(d => !q || d.toLowerCase().includes(q)).slice(0, 5);
+            const matchedNames       = (INTERN_SUGGESTIONS.names || []).filter(n => n.toLowerCase().includes(q)).slice(0, 5);
+            const matchedCompanies   = (INTERN_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedRoles       = (INTERN_SUGGESTIONS.designations || []).filter(r => r.toLowerCase().includes(q)).slice(0, 5);
+            const matchedDepts       = (INTERN_SUGGESTIONS.departments || []).filter(d => d.toLowerCase().includes(q)).slice(0, 5);
 
             const totalMatches = matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
 
