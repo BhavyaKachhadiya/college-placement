@@ -177,6 +177,21 @@ elseif ($student['placement_status'] === 'Unplaced') $statusClass = 'badge-dange
                         </div>
                     <?php endif; ?>
                 </div>
+
+                <div style="margin-top: 0.5rem; padding-top: 0.75rem; border-top: 1px dashed var(--neutral-200);">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--neutral-600); margin-bottom: 0.4rem;">
+                        <i class="fa-solid fa-file-lines"></i> Student Resume Document
+                    </div>
+                    <?php if (!empty($student['resume_file'])): ?>
+                        <a href="uploads/placement_documents/<?= htmlspecialchars($student['resume_file']) ?>" target="_blank" class="btn btn-light btn-sm" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-file-pdf" style="color: var(--brand-500);"></i> Download Resume
+                        </a>
+                    <?php else: ?>
+                        <div style="font-size: 0.82rem; color: var(--neutral-400); font-style: italic;">
+                            No resume uploaded yet.
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 

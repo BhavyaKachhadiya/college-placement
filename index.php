@@ -42,7 +42,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
 
 // Student Role Isolation: Students can view their own profile, settings & company vacancies
 if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
-    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson', 'index'];
+    $allowedStudentActions = ['studentProfile', 'studentSettings', 'updateSelf', 'getJson', 'index', 'deleteResume'];
     $allowedStudentModules = ['student', 'students', 'company', 'companies'];
     if (!in_array($module, $allowedStudentModules) || !in_array($action, $allowedStudentActions)) {
         header('Location: index.php?module=student&action=studentProfile');
@@ -130,6 +130,12 @@ switch ($action) {
         if (method_exists($controller, 'suggestEnrollment')) {
             $controller->suggestEnrollment();
             exit;
+        }
+        break;
+
+    case 'deleteResume':
+        if (method_exists($controller, 'deleteResume')) {
+            $controller->deleteResume();
         }
         break;
 

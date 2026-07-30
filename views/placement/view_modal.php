@@ -85,6 +85,13 @@
                         <span class="text-muted">No offer letter document uploaded.</span>
                     </div>
                 </div>
+
+                <div class="view-section mt-4">
+                    <h4><i class="fa-solid fa-file-lines"></i> Uploaded Student Resume Document</h4>
+                    <div id="viewStResumeContainer" class="view-report-box">
+                        <span class="text-muted">No resume uploaded.</span>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer">

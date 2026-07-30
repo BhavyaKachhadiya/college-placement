@@ -42,7 +42,7 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
     <?php endif; ?>
 
     <!-- Settings Form Card -->
-    <form action="index.php?module=student&action=updateSelf" method="POST">
+    <form action="index.php?module=student&action=updateSelf" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="module" value="student">
         <input type="hidden" name="action" value="updateSelf">
 
@@ -247,6 +247,28 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
                         Permanent Residential Address
                     </label>
                     <textarea name="address" rows="3" class="form-control" placeholder="Enter your complete address..." style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); font-family: var(--font-primary);"><?= htmlspecialchars($student['address'] ?? '') ?></textarea>
+                </div>
+                
+                <!-- Resume Upload -->
+                <div>
+                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
+                        Upload Resume (PDF, DOCX)
+                    </label>
+                    <input type="file" name="resume_file" accept=".pdf,.doc,.docx" class="form-control" style="width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); background: #ffffff;">
+                    <?php if (!empty($student['resume_file'])): ?>
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-file-lines" style="color: var(--brand-500);"></i>
+                            <span style="font-size: 0.85rem; color: var(--neutral-600);">Current Resume: <strong><?= htmlspecialchars($student['resume_file']) ?></strong></span>
+                            <div style="margin-left: auto; display: flex; align-items: center; gap: 1rem;">
+                                <a href="uploads/placement_documents/<?= htmlspecialchars($student['resume_file']) ?>" target="_blank" style="font-size: 0.85rem; color: var(--brand-600); text-decoration: none; font-weight: 600;">
+                                    <i class="fa-solid fa-download"></i> View
+                                </a>
+                                <a href="index.php?module=student&action=deleteResume" onclick="return confirm('Are you sure you want to delete your resume?')" style="font-size: 0.85rem; color: var(--rose-600); text-decoration: none; font-weight: 600;">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 

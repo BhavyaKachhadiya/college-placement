@@ -118,12 +118,58 @@ class StudentPlacementController {
             $data['skills']  = $input['skills'] ?? $existing['skills'];
             $data['address'] = $input['address'] ?? $existing['address'];
 
+            // Handle Resume File Upload
+            if (isset($_FILES['resume_file']) && $_FILES['resume_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $newResume = $this->handleFileUpload($_FILES['resume_file'], $existing['enroll_no'], 'resume');
+                if ($newResume) {
+                    if (!empty($existing['resume_file']) && file_exists($this->uploadDir . $existing['resume_file'])) {
+                        @unlink($this->uploadDir . $existing['resume_file']);
+                    }
+                    $data['resume_file'] = $newResume;
+                }
+            }
+
             $success = $this->placementModel->update($studentId, $data);
             if ($success) {
                 header('Location: index.php?module=student&action=studentSettings&msg=updated');
                 exit;
             } else {
                 throw new Exception("Failed to update student profile settings.");
+            }
+        } catch (Exception $e) {
+            header('Location: index.php?module=student&action=studentSettings&error=' . urlencode($e->getMessage()));
+            exit;
+        }
+    }
+
+    /**
+     * Handle Resume Deletion from Student Settings Page
+     */
+    public function deleteResume() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        try {
+            $studentId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 0;
+            if (!$studentId) throw new Exception("Unauthorized student session.");
+
+            $existing = $this->placementModel->getById($studentId);
+            if (!$existing) throw new Exception("Student record not found.");
+
+            if (!empty($existing['resume_file']) && file_exists($this->uploadDir . $existing['resume_file'])) {
+                @unlink($this->uploadDir . $existing['resume_file']);
+            }
+
+            // Update database to set resume_file to NULL
+            $existing['resume_file'] = null;
+            $success = $this->placementModel->update($studentId, $existing);
+
+            if ($success) {
+                header('Location: index.php?module=student&action=studentSettings&msg=updated');
+                exit;
+            } else {
+                throw new Exception("Failed to delete resume.");
             }
         } catch (Exception $e) {
             header('Location: index.php?module=student&action=studentSettings&error=' . urlencode($e->getMessage()));
@@ -167,9 +213,15 @@ class StudentPlacementController {
             if (empty($data['passing_year'])) throw new Exception("Passing Year is required.");
 
             // Handle Offer Letter File Upload
-            $offerLetter = $this->handleFileUpload($_FILES['offer_letter_file'] ?? null);
+            $offerLetter = $this->handleFileUpload($_FILES['offer_letter_file'] ?? null, $data['enroll_no'], 'offer_letter');
             if ($offerLetter) {
                 $data['offer_letter_file'] = $offerLetter;
+            }
+
+            // Handle Resume File Upload
+            $resumeFile = $this->handleFileUpload($_FILES['resume_file'] ?? null, $data['enroll_no'], 'resume');
+            if ($resumeFile) {
+                $data['resume_file'] = $resumeFile;
             }
 
             $newId = $this->placementModel->create($data);
@@ -214,12 +266,23 @@ class StudentPlacementController {
 
             // Handle file upload replacement
             if (isset($_FILES['offer_letter_file']) && $_FILES['offer_letter_file']['error'] !== UPLOAD_ERR_NO_FILE) {
-                $newFile = $this->handleFileUpload($_FILES['offer_letter_file']);
+                $newFile = $this->handleFileUpload($_FILES['offer_letter_file'], $existing['enroll_no'], 'offer_letter');
                 if ($newFile) {
                     if (!empty($existing['offer_letter_file']) && file_exists($this->uploadDir . $existing['offer_letter_file'])) {
                         @unlink($this->uploadDir . $existing['offer_letter_file']);
                     }
                     $data['offer_letter_file'] = $newFile;
+                }
+            }
+
+            // Handle resume file upload replacement
+            if (isset($_FILES['resume_file']) && $_FILES['resume_file']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $newResume = $this->handleFileUpload($_FILES['resume_file'], $existing['enroll_no'], 'resume');
+                if ($newResume) {
+                    if (!empty($existing['resume_file']) && file_exists($this->uploadDir . $existing['resume_file'])) {
+                        @unlink($this->uploadDir . $existing['resume_file']);
+                    }
+                    $data['resume_file'] = $newResume;
                 }
             }
 
@@ -258,6 +321,9 @@ class StudentPlacementController {
             if ($student) {
                 if (!empty($student['offer_letter_file']) && file_exists($this->uploadDir . $student['offer_letter_file'])) {
                     @unlink($this->uploadDir . $student['offer_letter_file']);
+                }
+                if (!empty($student['resume_file']) && file_exists($this->uploadDir . $student['resume_file'])) {
+                    @unlink($this->uploadDir . $student['resume_file']);
                 }
                 $this->placementModel->delete($id);
             }
@@ -381,7 +447,7 @@ class StudentPlacementController {
         return $clean;
     }
 
-    private function handleFileUpload($file) {
+    private function handleFileUpload($file, $enrollNo = '', $docType = 'doc') {
         if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
             return null;
         }
@@ -401,13 +467,19 @@ class StudentPlacementController {
             throw new Exception("Invalid file extension. Allowed formats: PDF, DOC, DOCX, JPG, PNG.");
         }
 
-        $newFileName = 'offer_letter_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+        if (!empty($enrollNo)) {
+            $timestamp = date('Ymd_His');
+            $newFileName = preg_replace('/[^A-Za-z0-9_-]/', '', $enrollNo) . '_' . preg_replace('/[^A-Za-z0-9_-]/', '', $docType) . '_' . $timestamp . '.' . $ext;
+        } else {
+            $newFileName = 'doc_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+        }
+        
         $targetPath  = $this->uploadDir . $newFileName;
 
         if (move_uploaded_file($fileTmp, $targetPath)) {
             return $newFileName;
         } else {
-            throw new Exception("Failed to upload offer letter document.");
+            throw new Exception("Failed to upload document. Please check directory permissions.");
         }
     }
 }

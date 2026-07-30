@@ -545,6 +545,16 @@ function viewStudent(id) {
                 </div>
             ` : `<span class="text-muted"><i class="fa-solid fa-circle-exclamation"></i> No offer letter document uploaded.</span>`;
 
+            const resumeContainer = document.getElementById('viewStResumeContainer');
+            resumeContainer.innerHTML = data.resume_file ? `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <span style="font-weight:600; color:var(--neutral-800);"><i class="fa-solid fa-file-lines" style="color:var(--brand-500); font-size:1.4rem;"></i> ${data.resume_file}</span>
+                    <a href="uploads/placement_documents/${data.resume_file}" target="_blank" class="btn btn-primary" style="padding:0.4rem 0.9rem; font-size:0.85rem;">
+                        <i class="fa-solid fa-download"></i> View / Download Resume
+                    </a>
+                </div>
+            ` : `<span class="text-muted"><i class="fa-solid fa-circle-exclamation"></i> No resume uploaded.</span>`;
+
             document.getElementById('viewStEditBtn').onclick = function() { closeStudentViewModal(); editStudent(data.id); };
             openModal('studentViewModal');
         });
@@ -589,6 +599,12 @@ function editStudent(id) {
                 document.getElementById('stExistingFileName').innerText = data.offer_letter_file;
                 existingContainer.style.display = 'block';
             } else { existingContainer.style.display = 'none'; }
+
+            const existingResumeContainer = document.getElementById('stExistingResumeContainer');
+            if (data.resume_file) {
+                document.getElementById('stExistingResumeName').innerText = data.resume_file;
+                existingResumeContainer.style.display = 'block';
+            } else { existingResumeContainer.style.display = 'none'; }
 
             openModal('studentFormModal');
         });

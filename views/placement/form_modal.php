@@ -113,17 +113,30 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group col-12">
+                        <div class="form-group col-6">
                             <label for="st_offer_letter_file" class="form-label">Offer Letter / Certificate Upload</label>
                             <div class="file-upload-box">
                                 <input type="file" name="offer_letter_file" id="st_offer_letter_file" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <div class="upload-placeholder">
                                     <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-                                    <span id="stFileNameDisplay">Click or drag & drop Offer Letter / Certificate (PDF, DOCX, PNG)</span>
+                                    <span id="stFileNameDisplay">Click or drag Offer Letter (PDF, DOCX, PNG)</span>
                                 </div>
                             </div>
                             <div id="stExistingFileContainer" class="existing-file-info" style="display:none; margin-top: 8px;">
                                 <i class="fa-solid fa-paperclip"></i> Current file: <span id="stExistingFileName" class="text-primary font-weight-bold"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="st_resume_file" class="form-label">Student Resume Upload</label>
+                            <div class="file-upload-box">
+                                <input type="file" name="resume_file" id="st_resume_file" class="file-input" accept=".pdf,.doc,.docx">
+                                <div class="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                                    <span id="stResumeNameDisplay">Click or drag Resume (PDF, DOCX)</span>
+                                </div>
+                            </div>
+                            <div id="stExistingResumeContainer" class="existing-file-info" style="display:none; margin-top: 8px;">
+                                <i class="fa-solid fa-paperclip"></i> Current file: <span id="stExistingResumeName" class="text-primary font-weight-bold"></span>
                             </div>
                         </div>
                     </div>

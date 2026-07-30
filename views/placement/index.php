@@ -302,7 +302,7 @@
                         <th>Batch</th>
                         <th>Career Status & Placement Info</th>
                         <th>Package (LPA)</th>
-                        <th>Offer Letter / Certificate</th>
+                        <th>Documents</th>
                         <th style="width: 130px;" class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -392,13 +392,23 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($st['offer_letter_file'])): ?>
-                                        <a href="uploads/placement_documents/<?= htmlspecialchars($st['offer_letter_file']) ?>" target="_blank" class="report-link" title="View Offer Letter / Certificate">
-                                            <i class="fa-solid fa-file-contract"></i> Offer Document
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="text-muted"><i class="fa-solid fa-file-excel"></i> No document</span>
-                                    <?php endif; ?>
+                                    <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                        <?php if (!empty($st['offer_letter_file'])): ?>
+                                            <a href="uploads/placement_documents/<?= htmlspecialchars($st['offer_letter_file']) ?>" target="_blank" class="report-link" title="View Offer Letter / Certificate">
+                                                <i class="fa-solid fa-file-contract"></i> Offer Doc
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-file-excel"></i> No Offer Doc</span>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($st['resume_file'])): ?>
+                                            <a href="uploads/placement_documents/<?= htmlspecialchars($st['resume_file']) ?>" target="_blank" class="report-link" style="color: var(--brand-600);" title="View Resume">
+                                                <i class="fa-solid fa-file-lines"></i> Resume
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-file-excel"></i> No Resume</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="action-buttons">

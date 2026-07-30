@@ -116,12 +116,12 @@ class StudentPlacement {
             `gr_no`, `enroll_no`, `name`, `email`, `phone`, `gender`, `dob`, 
             `department`, `semester`, `cgpa`, `passing_year`, `address`, 
             `skills`, `password`, `placement_status`, `company_name`, `designation`, 
-            `package_lpa`, `offer_letter_file`
+            `package_lpa`, `offer_letter_file`, `resume_file`
         ) VALUES (
             :gr_no, :enroll_no, :name, :email, :phone, :gender, :dob, 
             :department, :semester, :cgpa, :passing_year, :address, 
             :skills, :password, :placement_status, :company_name, :designation, 
-            :package_lpa, :offer_letter_file
+            :package_lpa, :offer_letter_file, :resume_file
         )";
 
         $stmt = $this->db->prepare($sql);
@@ -144,7 +144,8 @@ class StudentPlacement {
             ':company_name'     => trim($data['company_name'] ?? ''),
             ':designation'      => trim($data['designation'] ?? ''),
             ':package_lpa'      => !empty($data['package_lpa']) ? (float)$data['package_lpa'] : null,
-            ':offer_letter_file' => $data['offer_letter_file'] ?? null
+            ':offer_letter_file' => $data['offer_letter_file'] ?? null,
+            ':resume_file'      => $data['resume_file'] ?? null
         ]);
 
         return $result ? $this->db->lastInsertId() : false;
@@ -197,6 +198,11 @@ class StudentPlacement {
         if (array_key_exists('offer_letter_file', $data)) {
             $sql .= ", `offer_letter_file` = :offer_letter_file";
             $params[':offer_letter_file'] = $data['offer_letter_file'];
+        }
+
+        if (array_key_exists('resume_file', $data)) {
+            $sql .= ", `resume_file` = :resume_file";
+            $params[':resume_file'] = $data['resume_file'];
         }
 
         $sql .= " WHERE `id` = :id";
