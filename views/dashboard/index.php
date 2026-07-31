@@ -209,7 +209,7 @@
                 <?php if (empty($recentMous)): ?>
                     <div class="dash-empty">No MOU records yet</div>
                 <?php else: foreach ($recentMous as $m): ?>
-                    <div class="dash-recent-item">
+                    <div class="dash-recent-item" onclick="viewMou(<?= (int)$m['id'] ?>)" style="cursor: pointer;" title="Click to view details of <?= htmlspecialchars($m['company_name']) ?>">
                         <div class="dash-recent-icon dash-ri-blue">
                             <i class="fa-solid fa-building"></i>
                         </div>
@@ -239,7 +239,7 @@
                 <?php if (empty($recentWorkshops)): ?>
                     <div class="dash-empty">No workshop records yet</div>
                 <?php else: foreach ($recentWorkshops as $w): ?>
-                    <div class="dash-recent-item">
+                    <div class="dash-recent-item" onclick="viewWorkshop(<?= (int)$w['id'] ?>)" style="cursor: pointer;" title="Click to view details of <?= htmlspecialchars($w['title']) ?>">
                         <div class="dash-recent-icon dash-ri-purple">
                             <i class="fa-solid fa-chalkboard"></i>
                         </div>
@@ -276,7 +276,7 @@
                 <?php if (empty($internships)): ?>
                     <div class="dash-empty">No student records yet</div>
                 <?php else: foreach (array_slice($internships, 0, 5) as $s): ?>
-                    <div class="dash-recent-item">
+                    <div class="dash-recent-item" onclick="viewStudent(<?= (int)$s['id'] ?>)" style="cursor: pointer;" title="Click to view details of <?= htmlspecialchars($s['name']) ?>">
                         <div class="dash-recent-icon dash-ri-amber">
                             <i class="fa-solid fa-user-tie"></i>
                         </div>

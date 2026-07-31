@@ -36,6 +36,9 @@ class DashboardController {
 
         require_once __DIR__ . '/../views/layouts/header.php';
         require_once __DIR__ . '/../views/dashboard/index.php';
+        require_once __DIR__ . '/../views/mou/view_modal.php';
+        require_once __DIR__ . '/../views/workshop/view_modal.php';
+        require_once __DIR__ . '/../views/placement/view_modal.php';
         require_once __DIR__ . '/../views/layouts/footer.php';
     }
 }
