@@ -232,11 +232,13 @@ $femaleCount= (int)($batchStats['female_count'] ?? 0);
             </div>
             <div style="display:flex; gap:0.5rem; align-items:center;">
                 <!-- Live search inside table -->
-                <div class="search-input-group" style="max-width: 220px;">
+                <div class="search-input-group autocomplete-wrapper" style="max-width: 260px; position: relative;">
                     <i class="fa-solid fa-search search-icon"></i>
                     <input type="text" id="syrSearch" class="form-control search-control"
-                           placeholder="Search name, enroll, company…"
-                           oninput="filterSyrTable(this.value)">
+                           placeholder="Search name, enroll, GR, company…"
+                           autocomplete="off" spellcheck="false">
+                    <!-- Live Floating Suggestions Dropdown -->
+                    <div class="search-suggestions-dropdown" id="syrSearchDropdown"></div>
                 </div>
                 <!-- Status filter -->
                 <select id="syrStatusFilter" class="form-select" style="min-width:150px;" onchange="filterSyrTable()">
@@ -286,7 +288,12 @@ $femaleCount= (int)($batchStats['female_count'] ?? 0);
                         };
                     ?>
                         <tr data-status="<?= htmlspecialchars($s['placement_status']) ?>"
-                            data-search="<?= strtolower(htmlspecialchars($s['name'] . ' ' . $s['enroll_no'] . ' ' . ($s['company_name'] ?? ''))) ?>">
+                            data-search="<?= strtolower(htmlspecialchars($s['name'] . ' ' . $s['enroll_no'] . ' ' . ($s['gr_no'] ?? '') . ' ' . ($s['department'] ?? '') . ' ' . ($s['company_name'] ?? '') . ' ' . ($s['designation'] ?? ''))) ?>"
+                            data-name="<?= htmlspecialchars($s['name']) ?>"
+                            data-enroll="<?= htmlspecialchars($s['enroll_no']) ?>"
+                            data-gr="<?= htmlspecialchars($s['gr_no'] ?? '') ?>"
+                            data-dept="<?= htmlspecialchars($s['department'] ?? '') ?>"
+                            data-company="<?= htmlspecialchars($s['company_name'] ?? '') ?>">
                             <td><span class="mou-id"><?= $sr++ ?></span></td>
                             <td><code style="font-size:0.78rem; color:var(--brand-600);"><?= htmlspecialchars($s['enroll_no']) ?></code></td>
                             <td>
@@ -456,8 +463,129 @@ function filterSyrTable(searchVal) {
         row.style.display = show ? '' : 'none';
         if (show) visible++;
     });
-    document.getElementById('syrVisibleCount').textContent = visible;
+    const countEl = document.getElementById('syrVisibleCount');
+    if (countEl) countEl.textContent = visible;
 }
+
+// Live Autocomplete Suggestion Popup for syrSearch
+document.addEventListener('DOMContentLoaded', function() {
+    const input    = document.getElementById('syrSearch');
+    const dropdown = document.getElementById('syrSearchDropdown');
+    let activeIndex = -1;
+
+    if (!input || !dropdown) return;
+
+    function escapeHtml(str) {
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function highlightMatch(text, query) {
+        if (!query) return escapeHtml(text);
+        const escapedText  = escapeHtml(text);
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex        = new RegExp(`(${escapedQuery})`, 'gi');
+        return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+    }
+
+    function renderSyrSuggestions(query) {
+        const q = query.trim().toLowerCase();
+        filterSyrTable(q);
+
+        if (!q || q.length < 1) {
+            dropdown.style.display = 'none';
+            dropdown.innerHTML = '';
+            return;
+        }
+
+        const rows = Array.from(document.querySelectorAll('#syrTableBody tr'));
+        const matched = [];
+
+        rows.forEach(row => {
+            const searchData = (row.dataset.search || '').toLowerCase();
+            if (searchData.includes(q)) {
+                const name    = row.dataset.name || '';
+                const enroll  = row.dataset.enroll || '';
+                const gr      = row.dataset.gr || '';
+                const dept    = row.dataset.dept || '';
+                const company = row.dataset.company || '';
+                matched.push({ name, enroll, gr, dept, company });
+            }
+        });
+
+        if (matched.length === 0) {
+            dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching students found</div>`;
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        let html = `<div class="suggestion-group-header"><i class="fa-solid fa-user-graduate"></i> Matching Students (${matched.length})</div>`;
+        matched.slice(0, 6).forEach(item => {
+            const grTag = item.gr ? ` <span style="font-size:0.75rem; color:#a7f3d0;">(GR: ${highlightMatch(item.gr, q)})</span>` : '';
+            html += `<div class="suggestion-item" data-value="${escapeHtml(item.name || item.enroll)}">
+                        <i class="fa-solid fa-id-card suggestion-icon"></i>
+                        <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
+                            <span style="font-weight:700;">${highlightMatch(item.name, q)}</span>
+                            <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(item.enroll, q)}${grTag} · ${escapeHtml(item.dept)} ${item.company ? '· ' + escapeHtml(item.company) : ''}</span>
+                        </div>
+                        <span class="suggestion-badge">Select</span>
+                     </div>`;
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.style.display = 'block';
+        activeIndex = -1;
+
+        dropdown.querySelectorAll('.suggestion-item').forEach(el => {
+            el.addEventListener('click', function() {
+                input.value = this.getAttribute('data-value');
+                dropdown.style.display = 'none';
+                filterSyrTable(input.value);
+            });
+        });
+    }
+
+    function updateActiveItem(items) {
+        items.forEach((item, index) => {
+            if (index === activeIndex) {
+                item.classList.add('active');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    input.addEventListener('input', function() { renderSyrSuggestions(this.value); });
+    input.addEventListener('focus', function() { renderSyrSuggestions(this.value); });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    input.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.suggestion-item');
+        if (!items.length || dropdown.style.display === 'none') return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateActiveItem(items);
+        } else if (e.key === 'Enter') {
+            if (activeIndex >= 0 && items[activeIndex]) {
+                e.preventDefault();
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.style.display = 'none';
+        }
+    });
+});
 
 // CSV Export
 function exportSyrCSV() {
