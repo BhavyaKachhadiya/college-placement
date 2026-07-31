@@ -18,8 +18,12 @@ class Company {
         $params = [];
 
         if (!empty($search)) {
-            $sql .= " AND (`company_name` LIKE :search OR `job_role` LIKE :search OR `location` LIKE :search OR `industry` LIKE :search)";
-            $params[':search'] = "%{$search}%";
+            $sql .= " AND (`company_name` LIKE :search0 OR `job_role` LIKE :search1 OR `location` LIKE :search2 OR `industry` LIKE :search3)";
+            $searchVal = "%{$search}%";
+            $params[':search0'] = $searchVal;
+            $params[':search1'] = $searchVal;
+            $params[':search2'] = $searchVal;
+            $params[':search3'] = $searchVal;
         }
 
         if (!empty($status)) {

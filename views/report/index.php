@@ -494,7 +494,8 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
         </div>
         <div>
             <h3 class="report-section-title">Individual Student Profile</h3>
-            <p class="report-section-sub">Look up any student by enrollment number and generate a full placement &amp; academic profile card</p>
+            <h3 class="report-section-title">Individual Student Profile</h3>
+            <p class="report-section-sub">Look up any student by enrollment number or GR number and generate a full placement &amp; academic profile card</p>
         </div>
     </div>
 
@@ -505,18 +506,18 @@ $higherRate    = $totalStudents > 0 ? round(($placementStats['higher_studies_cou
             </div>
             <div class="syr-cta-body">
                 <h4 class="syr-cta-title">Generate Student Profile Report</h4>
-                <p class="syr-cta-desc">Enter an enrollment number to instantly view a student's placement status, CGPA, skills, contact details, and company information — printable and exportable.</p>
+                <p class="syr-cta-desc">Enter an enrollment or GR number to instantly view a student's placement status, CGPA, skills, contact details, and company information — printable and exportable.</p>
             </div>
             <div class="syr-cta-form">
-                <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Enter enrollment number:</p>
+                <p style="font-size:0.78rem; font-weight:600; color:var(--neutral-500); margin-bottom:0.5rem;">Enter enrollment or GR number:</p>
                 <form action="index.php" method="POST" id="ctaProfileForm" style="display:flex; gap:0.5rem; align-items:center;">
                     <input type="hidden" name="module" value="report">
                     <input type="hidden" name="action" value="studentProfile">
                     <div class="autocomplete-wrapper" style="position:relative;">
                         <input type="text" name="enroll" class="form-control" id="ctaEnrollInput"
-                               placeholder="e.g. 250114305001"
+                               placeholder="e.g. 250114305001 / 105489"
                                autocomplete="off" spellcheck="false"
-                               style="width:220px; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;">
+                               style="width:230px; font-weight:600; font-size:0.9rem; letter-spacing:0.02em;">
                         <!-- Live Floating Suggestions Dropdown -->
                         <div class="search-suggestions-dropdown" id="ctaEnrollDropdown"></div>
                     </div>
@@ -573,10 +574,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Matching Students</div>`;
                     matches.forEach(s => {
-                        html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
+                        const grLabel = s.gr_no ? ` <span style="font-size:0.75rem; color:#a7f3d0; font-weight:600;">(GR: ${highlightMatch(s.gr_no, q)})</span>` : '';
+                        html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no || s.gr_no)}">
                                     <i class="fa-solid fa-id-card suggestion-icon"></i>
                                     <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
-                                        <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
+                                        <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}${grLabel}</span>
                                         <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
                                     </div>
                                     <span class="suggestion-badge">Select</span>

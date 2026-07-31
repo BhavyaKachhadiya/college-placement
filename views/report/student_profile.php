@@ -28,7 +28,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
             </div>
             <div>
                 <h2 class="report-hero-title">Individual Student Report</h2>
-                <p class="report-hero-sub">Search by enrollment number to generate a detailed student profile &amp; placement card</p>
+                <p class="report-hero-sub">Search by enrollment number or GR number to generate a detailed student profile &amp; placement card</p>
             </div>
         </div>
         <div class="report-hero-actions">
@@ -51,7 +51,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
         <div class="spr-search-inner">
             <div class="spr-search-label">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <span>Search by Enrollment Number</span>
+                <span>Search by Enrollment or GR Number</span>
             </div>
             <form action="index.php" method="POST" class="spr-search-form" id="sprSearchForm">
                 <input type="hidden" name="module" value="report">
@@ -60,7 +60,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                     <i class="fa-solid fa-id-badge spr-input-icon"></i>
                     <input type="text" name="enroll" id="sprEnrollInput"
                            class="form-control spr-enroll-input"
-                           placeholder="Enter enrollment number (e.g. 250114305001)"
+                           placeholder="Enter enrollment or GR number (e.g. 250114305001 / 105489)"
                            value="<?= htmlspecialchars($searchEnroll) ?>"
                            autocomplete="off" autocorrect="off"
                            spellcheck="false">
@@ -121,10 +121,11 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
 
                             let html = `<div class="suggestion-group-header"><i class="fa-solid fa-users"></i> Matching Students</div>`;
                             matches.forEach(s => {
-                                html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no)}">
+                                const grLabel = s.gr_no ? ` <span style="font-size:0.75rem; color:#a7f3d0; font-weight:600;">(GR: ${highlightMatch(s.gr_no, q)})</span>` : '';
+                                html += `<div class="suggestion-item" data-enroll="${escapeHtml(s.enroll_no || s.gr_no)}">
                                             <i class="fa-solid fa-id-card suggestion-icon"></i>
                                             <div class="suggestion-text" style="display:flex; flex-direction:column; gap:2px;">
-                                                <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}</span>
+                                                <span style="font-weight:700; font-family:'Courier New', monospace; color:#38bdf8;">${highlightMatch(s.enroll_no, q)}${grLabel}</span>
                                                 <span style="font-size:0.75rem; color:#94a3b8;">${highlightMatch(s.name || '', q)} · ${escapeHtml(s.department || '')}</span>
                                             </div>
                                             <span class="suggestion-badge">Select</span>
@@ -225,8 +226,13 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
                 </div>
                 <div class="spr-avatar-info">
                     <h3 class="spr-student-name"><?= htmlspecialchars($student['name']) ?></h3>
-                    <code class="spr-enroll-code"><?= htmlspecialchars($student['enroll_no']) ?></code>
-                    <span class="status-badge <?= $sm['class'] ?>" style="margin-top:0.375rem;">
+                    <div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-top:0.25rem;">
+                        <code class="spr-enroll-code" title="Enrollment Number">Enroll: <?= htmlspecialchars($student['enroll_no']) ?></code>
+                        <?php if (!empty($student['gr_no'])): ?>
+                            <code class="spr-enroll-code" style="background:rgba(59,130,246,0.1); color:var(--brand-600); border-color:rgba(59,130,246,0.2);" title="GR Number">GR: <?= htmlspecialchars($student['gr_no']) ?></code>
+                        <?php endif; ?>
+                    </div>
+                    <span class="status-badge <?= $sm['class'] ?>" style="margin-top:0.5rem;">
                         <i class="fa-solid <?= $sm['icon'] ?> status-dot"></i>
                         <?= htmlspecialchars($student['placement_status']) ?>
                     </span>
@@ -249,6 +255,12 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
 
             <!-- Info Grid -->
             <div class="spr-info-grid">
+                <?php if (!empty($student['gr_no'])): ?>
+                <div class="spr-info-item">
+                    <span class="spr-info-label"><i class="fa-solid fa-id-card"></i> GR Number</span>
+                    <span class="spr-info-value"><code class="spr-enroll-code" style="background:var(--neutral-100); color:var(--neutral-800); font-weight:700;"><?= htmlspecialchars($student['gr_no']) ?></code></span>
+                </div>
+                <?php endif; ?>
                 <div class="spr-info-item">
                     <span class="spr-info-label"><i class="fa-solid fa-building-columns"></i> Department</span>
                     <span class="spr-info-value"><?= htmlspecialchars($student['department']) ?></span>
@@ -444,6 +456,7 @@ $sm = $student ? ($statusMeta[$student['placement_status']] ?? $statusMeta['Unpl
     function exportSprCSV() {
         const s = <?= json_encode([
             'Enrollment No'    => $student['enroll_no'],
+            'GR No'            => $student['gr_no'] ?? '',
             'Name'             => $student['name'],
             'Gender'           => $student['gender'],
             'Department'       => $student['department'],

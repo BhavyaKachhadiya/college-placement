@@ -48,7 +48,8 @@
 
     <!-- Multi-Year Filter Tabs & Controls Header -->
     <div class="filter-wrapper">
-        <form action="index.php?module=workshop" method="POST" class="filter-form" id="wsFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+        <form action="index.php" method="GET" class="filter-form" id="wsFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+            <input type="hidden" name="module" value="workshop">
             <input type="hidden" name="year" id="postWsYearInput" value="<?= htmlspecialchars($year) ?>">
 
             <div class="year-tabs-container">
@@ -78,16 +79,8 @@
                     <div class="search-suggestions-dropdown" id="wsSuggestionsDropdown"></div>
                 </div>
 
-                <div class="select-group">
-                    <select name="certificate" class="form-select" onchange="this.form.submit()">
-                        <option value="all" <?= ($certificate === 'all' || $certificate === '') ? 'selected' : '' ?>>All Certifications</option>
-                        <option value="1" <?= ($certificate === '1') ? 'selected' : '' ?>>Certificate Provided</option>
-                        <option value="0" <?= ($certificate === '0') ? 'selected' : '' ?>>No Certificate</option>
-                    </select>
-                </div>
-
                 <button type="submit" class="btn btn-secondary">Filter</button>
-                <?php if (!empty($search) || (!empty($year) && $year !== 'all') || ($certificate !== '' && $certificate !== 'all')): ?>
+                <?php if (!empty($search) || (!empty($year) && $year !== 'all')): ?>
                     <a href="index.php?module=workshop" class="btn btn-light" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i> Reset</a>
                 <?php endif; ?>
             </div>

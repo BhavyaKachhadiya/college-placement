@@ -48,7 +48,8 @@
 
     <!-- Multi-Year Filter Tabs & Controls Header -->
     <div class="filter-wrapper">
-        <form action="index.php?module=mou" method="POST" class="filter-form" id="mouFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+        <form action="index.php" method="GET" class="filter-form" id="mouFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+            <input type="hidden" name="module" value="mou">
             <input type="hidden" name="year" id="postMouYearInput" value="<?= htmlspecialchars($year) ?>">
 
             <div class="year-tabs-container">
@@ -68,7 +69,6 @@
             </div>
 
             <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-            <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <div class="search-input-group autocomplete-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" name="search" id="mouSearchInput" class="form-control search-control" 
@@ -79,17 +79,8 @@
                     <div class="search-suggestions-dropdown" id="mouSuggestionsDropdown"></div>
                 </div>
 
-                <div class="select-group">
-                    <select name="status" class="form-select" onchange="this.form.submit()">
-                        <option value="all" <?= ($status === 'all' || empty($status)) ? 'selected' : '' ?>>All Statuses</option>
-                        <option value="Active" <?= ($status === 'Active') ? 'selected' : '' ?>>Active Only</option>
-                        <option value="Expired" <?= ($status === 'Expired') ? 'selected' : '' ?>>Expired Only</option>
-                        <option value="Terminated" <?= ($status === 'Terminated') ? 'selected' : '' ?>>Terminated Only</option>
-                    </select>
-                </div>
-
                 <button type="submit" class="btn btn-secondary">Filter</button>
-                <?php if (!empty($search) || (!empty($year) && $year !== 'all') || (!empty($status) && $status !== 'all')): ?>
+                <?php if (!empty($search) || (!empty($year) && $year !== 'all')): ?>
                     <a href="index.php?module=mou" class="btn btn-light" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i> Reset</a>
                 <?php endif; ?>
             </div>

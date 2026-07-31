@@ -27,8 +27,12 @@ class Mou {
         $params = [];
 
         if (!empty($search)) {
-            $sql .= " AND (`company_name` LIKE :search OR `contact_person` LIKE :search OR `email` LIKE :search OR `description` LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (`company_name` LIKE :search0 OR `contact_person` LIKE :search1 OR `email` LIKE :search2 OR `description` LIKE :search3)";
+            $searchVal = '%' . $search . '%';
+            $params[':search0'] = $searchVal;
+            $params[':search1'] = $searchVal;
+            $params[':search2'] = $searchVal;
+            $params[':search3'] = $searchVal;
         }
 
         if (!empty($year) && $year !== 'all') {

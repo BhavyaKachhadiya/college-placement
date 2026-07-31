@@ -16,8 +16,13 @@ class Workshop {
         $params = [];
 
         if (!empty($search)) {
-            $sql .= " AND (`title` LIKE :search OR `instructor_name` LIKE :search OR `company_name` LIKE :search OR `venue` LIKE :search OR `description` LIKE :search)";
-            $params[':search'] = '%' . $search . '%';
+            $sql .= " AND (`title` LIKE :search0 OR `instructor_name` LIKE :search1 OR `company_name` LIKE :search2 OR `venue` LIKE :search3 OR `description` LIKE :search4)";
+            $searchVal = '%' . $search . '%';
+            $params[':search0'] = $searchVal;
+            $params[':search1'] = $searchVal;
+            $params[':search2'] = $searchVal;
+            $params[':search3'] = $searchVal;
+            $params[':search4'] = $searchVal;
         }
 
         if (!empty($year) && $year !== 'all') {

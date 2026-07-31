@@ -217,8 +217,8 @@ class ReportController {
 
         if ($searchEnroll !== '') {
             $rows = $this->queryPrepared(
-                "SELECT * FROM `students` WHERE `enroll_no` = :enroll LIMIT 1",
-                [':enroll' => $searchEnroll]
+                "SELECT * FROM `students` WHERE `enroll_no` = :search1 OR `gr_no` = :search2 LIMIT 1",
+                [':search1' => $searchEnroll, ':search2' => $searchEnroll]
             );
             $student = $rows[0] ?? null;
         }
@@ -229,7 +229,7 @@ class ReportController {
     }
 
     /**
-     * AJAX Endpoint for Enrollment Autocomplete Suggestions (Optimized, max 8 records)
+     * AJAX Endpoint for Enrollment & GR Number Autocomplete Suggestions (Optimized, max 8 records)
      * URL: index.php?module=report&action=suggestEnrollment&q=2401
      */
     public function suggestEnrollment() {
@@ -243,12 +243,12 @@ class ReportController {
 
         $term = '%' . $q . '%';
         $rows = $this->queryPrepared(
-            "SELECT `enroll_no`, `name`, `department`
+            "SELECT `gr_no`, `enroll_no`, `name`, `department`
              FROM `students`
-             WHERE `enroll_no` LIKE :q1 OR `name` LIKE :q2 OR `department` LIKE :q3
+             WHERE `enroll_no` LIKE :q1 OR `gr_no` LIKE :q2 OR `name` LIKE :q3 OR `department` LIKE :q4
              ORDER BY `enroll_no` ASC
              LIMIT 8",
-            [':q1' => $term, ':q2' => $term, ':q3' => $term]
+            [':q1' => $term, ':q2' => $term, ':q3' => $term, ':q4' => $term]
         );
 
         echo json_encode($rows ?: []);

@@ -50,7 +50,8 @@
 
     <!-- Batch / Passing Year Filter Tabs & Controls Header -->
     <div class="filter-wrapper">
-        <form action="index.php?module=placement" method="POST" class="filter-form" id="placementFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+        <form action="index.php" method="GET" class="filter-form" id="placementFilterForm" style="width: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;">
+            <input type="hidden" name="module" value="placement">
             <input type="hidden" name="year" id="postYearInput" value="<?= htmlspecialchars($passing_year) ?>">
 
             <div class="year-tabs-container">
@@ -69,7 +70,6 @@
                 </div>
             </div>
 
-            <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
             <div class="filter-controls-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <div class="search-input-group autocomplete-wrapper">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -110,7 +110,7 @@
     </div>
 
     <script>
-    const PLACEMENT_SUGGESTIONS = <?= json_encode($suggestions ?? ['names'=>[], 'companies'=>[], 'designations'=>[], 'departments'=>[]]) ?>;
+    const PLACEMENT_SUGGESTIONS = <?= json_encode($suggestions ?? ['gr_nos'=>[], 'enroll_nos'=>[], 'names'=>[], 'companies'=>[], 'designations'=>[], 'departments'=>[]]) ?>;
 
     function submitPostYear(yearVal) {
         document.getElementById('postYearInput').value = yearVal;
@@ -147,12 +147,13 @@
             }
 
             const matchedGrs         = (PLACEMENT_SUGGESTIONS.gr_nos || []).filter(g => g.toLowerCase().includes(q)).slice(0, 5);
+            const matchedEnrolls     = (PLACEMENT_SUGGESTIONS.enroll_nos || []).filter(e => e.toLowerCase().includes(q)).slice(0, 5);
             const matchedNames       = (PLACEMENT_SUGGESTIONS.names || []).filter(n => n.toLowerCase().includes(q)).slice(0, 5);
             const matchedCompanies   = (PLACEMENT_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
             const matchedRoles       = (PLACEMENT_SUGGESTIONS.designations || []).filter(r => r.toLowerCase().includes(q)).slice(0, 5);
-            const matchedDepts       = (PLACEMENT_SUGGESTIONS.departments || []).filter(d => !q || d.toLowerCase().includes(q)).slice(0, 5);
+            const matchedDepts       = (PLACEMENT_SUGGESTIONS.departments || []).filter(d => d.toLowerCase().includes(q)).slice(0, 5);
 
-            const totalMatches = matchedGrs.length + matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
+            const totalMatches = matchedGrs.length + matchedEnrolls.length + matchedNames.length + matchedCompanies.length + matchedRoles.length + matchedDepts.length;
 
             if (totalMatches === 0) {
                 dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching suggestions found</div>`;
@@ -161,6 +162,17 @@
             }
 
             let html = '';
+
+            if (matchedEnrolls.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-id-card-clip"></i> Enrollment Numbers</div>`;
+                matchedEnrolls.forEach(e => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(e)}">
+                                <i class="fa-solid fa-hashtag suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(e, q)}</span>
+                                <span class="suggestion-badge">Enroll No</span>
+                             </div>`;
+                });
+            }
 
             if (matchedGrs.length > 0) {
                 html += `<div class="suggestion-group-header"><i class="fa-solid fa-id-card"></i> GR Numbers</div>`;
