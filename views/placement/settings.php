@@ -48,7 +48,76 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
 
         <div class="card" style="background: var(--white); border-radius: var(--radius-xl); border: 1px solid var(--neutral-200); padding: 2rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
 
-            <!-- Section 1: Basic Profile Details (READ-ONLY) -->
+            <!-- Section 1: RESUME UPLOAD (TOP FEATURED SECTION) -->
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%); border: 1.5px solid #86efac; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2.25rem; box-shadow: var(--shadow-xs);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #166534; margin: 0; display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="fa-solid fa-file-pdf" style="color: #22c55e; font-size: 1.3rem;"></i> Student Resume Upload (Required for Placements)
+                    </h3>
+                </div>
+
+                <p style="font-size: 0.85rem; color: #15803d; margin-bottom: 1.25rem; line-height: 1.4;">
+                    Upload your latest PDF or DOCX resume (max 5MB). Your resume will be automatically submitted when applying for company recruitment drives.
+                </p>
+
+                <div style="background: #ffffff; border: 1px dashed #4ade80; border-radius: var(--radius-md); padding: 1.25rem;">
+                    <label style="display: block; font-weight: 700; font-size: 0.88rem; color: var(--neutral-800); margin-bottom: 0.5rem;">
+                        Select Resume File (PDF / DOCX)
+                    </label>
+                    <input type="file" name="resume_file" accept=".pdf,.doc,.docx" class="form-control" style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); background: #ffffff;">
+
+                    <?php if (!empty($student['resume_file'])): ?>
+                        <div style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--neutral-200); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 1.2rem;"></i>
+                                <span style="font-size: 0.88rem; color: var(--neutral-700);">Current Resume: <strong style="color: var(--neutral-900);"><?= htmlspecialchars($student['resume_file']) ?></strong></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <a href="uploads/placement_documents/<?= htmlspecialchars($student['resume_file']) ?>" target="_blank" class="btn btn-sm btn-primary" style="font-size: 0.82rem; padding: 0.4rem 0.9rem;">
+                                    <i class="fa-solid fa-eye"></i> View Resume
+                                </a>
+                                <a href="index.php?module=student&action=deleteResume" onclick="return confirm('Are you sure you want to delete your resume?')" class="btn btn-sm" style="background: rgba(225,29,72,0.1); color: var(--rose-600); border: 1px solid rgba(225,29,72,0.2); font-size: 0.82rem; padding: 0.4rem 0.9rem;">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div style="margin-top: 0.75rem; font-size: 0.84rem; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 0.45rem;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> No resume uploaded yet. Select your PDF resume and click "Save My Settings" to upload.
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Section 2: Technical Skills & Permanent Address (EDITABLE) -->
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--neutral-150); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-900); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="fa-solid fa-code" style="color: var(--amber-600);"></i> Technical Skills &amp; Permanent Address
+                </h3>
+                <span style="font-size: 0.78rem; font-weight: 700; background: rgba(22, 163, 74, 0.12); color: var(--green-600); border: 1px solid rgba(22, 163, 74, 0.3); padding: 0.25rem 0.65rem; border-radius: 9999px;">
+                    <i class="fa-solid fa-pen" style="font-size: 0.7rem;"></i> Editable
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2.25rem;">
+                <!-- Skills -->
+                <div>
+                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
+                        Technical Skills (comma separated)
+                    </label>
+                    <input type="text" name="skills" value="<?= htmlspecialchars($student['skills'] ?? '') ?>" placeholder="e.g. Python, React, Node.js, AWS, Java" class="form-control" style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm);">
+                </div>
+
+                <!-- Permanent Address -->
+                <div>
+                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
+                        Permanent Residential Address
+                    </label>
+                    <textarea name="address" rows="3" class="form-control" placeholder="Enter your complete address..." style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); font-family: var(--font-primary);"><?= htmlspecialchars($student['address'] ?? '') ?></textarea>
+                </div>
+            </div>
+
+            <!-- Section 3: Basic Profile Details (READ-ONLY) -->
             <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--neutral-150); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-900); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
                     <i class="fa-solid fa-user-lock" style="color: var(--brand-500);"></i> Personal &amp; Basic Info
@@ -58,7 +127,7 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
                 </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; background: var(--neutral-50); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--neutral-150);">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2.25rem; background: var(--neutral-50); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--neutral-150);">
                 <!-- Name -->
                 <div>
                     <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
@@ -116,7 +185,7 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
                 </div>
             </div>
 
-            <!-- Section 2: Academic Info (READ-ONLY) -->
+            <!-- Section 4: Academic Info (READ-ONLY) -->
             <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--neutral-150); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-900); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
                     <i class="fa-solid fa-graduation-cap" style="color: var(--purple-600);"></i> Academic Information
@@ -160,7 +229,7 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
                 </div>
             </div>
 
-            <!-- Section 3: Placement & Career Status (READ-ONLY) -->
+            <!-- Section 5: Placement & Career Status (READ-ONLY) -->
             <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--neutral-150); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-900); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
                     <i class="fa-solid fa-briefcase" style="color: var(--green-600);"></i> Career &amp; Placement Status
@@ -218,56 +287,6 @@ $error = isset($_GET['error']) ? trim($_GET['error']) : '';
                         </div>
                     <?php else: ?>
                         <input type="text" value="No offer letter document uploaded." disabled style="width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--neutral-200); background: #ffffff; color: var(--neutral-400); border-radius: var(--radius-sm); font-style: italic;">
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Section 4: Skills & Address (EDITABLE) -->
-            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--neutral-150); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--neutral-900); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
-                    <i class="fa-solid fa-code" style="color: var(--amber-600);"></i> Technical Skills &amp; Permanent Address
-                </h3>
-                <span style="font-size: 0.78rem; font-weight: 700; background: rgba(22, 163, 74, 0.12); color: var(--green-600); border: 1px solid rgba(22, 163, 74, 0.3); padding: 0.25rem 0.65rem; border-radius: 9999px;">
-                    <i class="fa-solid fa-pen" style="font-size: 0.7rem;"></i> Editable
-                </span>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
-                <!-- Skills -->
-                <div>
-                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
-                        Technical Skills (comma separated)
-                    </label>
-                    <input type="text" name="skills" value="<?= htmlspecialchars($student['skills'] ?? '') ?>" placeholder="e.g. Python, React, Node.js, AWS, Java" class="form-control" style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm);">
-                </div>
-
-                <!-- Permanent Address -->
-                <div>
-                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
-                        Permanent Residential Address
-                    </label>
-                    <textarea name="address" rows="3" class="form-control" placeholder="Enter your complete address..." style="width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); font-family: var(--font-primary);"><?= htmlspecialchars($student['address'] ?? '') ?></textarea>
-                </div>
-                
-                <!-- Resume Upload -->
-                <div>
-                    <label style="display: block; font-weight: 600; font-size: 0.85rem; color: var(--neutral-700); margin-bottom: 0.4rem;">
-                        Upload Resume (PDF, DOCX)
-                    </label>
-                    <input type="file" name="resume_file" accept=".pdf,.doc,.docx" class="form-control" style="width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); background: #ffffff;">
-                    <?php if (!empty($student['resume_file'])): ?>
-                        <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <i class="fa-solid fa-file-lines" style="color: var(--brand-500);"></i>
-                            <span style="font-size: 0.85rem; color: var(--neutral-600);">Current Resume: <strong><?= htmlspecialchars($student['resume_file']) ?></strong></span>
-                            <div style="margin-left: auto; display: flex; align-items: center; gap: 1rem;">
-                                <a href="uploads/placement_documents/<?= htmlspecialchars($student['resume_file']) ?>" target="_blank" style="font-size: 0.85rem; color: var(--brand-600); text-decoration: none; font-weight: 600;">
-                                    <i class="fa-solid fa-download"></i> View
-                                </a>
-                                <a href="index.php?module=student&action=deleteResume" onclick="return confirm('Are you sure you want to delete your resume?')" style="font-size: 0.85rem; color: var(--rose-600); text-decoration: none; font-weight: 600;">
-                                    <i class="fa-solid fa-trash"></i> Delete
-                                </a>
-                            </div>
-                        </div>
                     <?php endif; ?>
                 </div>
             </div>

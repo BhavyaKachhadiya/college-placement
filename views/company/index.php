@@ -56,6 +56,49 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
         </div>
     <?php endif; ?>
 
+    <!-- Student Resume Missing Toast & Banner Popup -->
+    <?php if (!$isAdmin && isset($hasResume) && !$hasResume): ?>
+        <!-- Floating Interactive Toast Notification for Missing Resume -->
+        <div id="resumeToastPopup" onclick="window.location.href='index.php?module=student&action=studentSettings';" style="position: fixed; top: 5.5rem; right: 1.5rem; z-index: 99999; width: calc(100% - 3rem); max-width: 440px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px solid #ea580c; border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; box-shadow: 0 16px 40px rgba(234, 88, 12, 0.35); cursor: pointer; animation: slideInToast 0.4s cubic-bezier(0.16, 1, 0.3, 1); transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 20px 48px rgba(234, 88, 12, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 16px 40px rgba(234, 88, 12, 0.35)';">
+            <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: #ea580c; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(234,88,12,0.4);">
+                    <i class="fa-solid fa-file-circle-exclamation"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                        <strong style="font-size: 0.98rem; color: #9a3412; font-family: var(--font-display); font-weight: 800;">Resume Not Uploaded ⚠️</strong>
+                        <span style="font-size: 0.68rem; font-weight: 800; background: #ea580c; color: #ffffff; padding: 0.15rem 0.55rem; border-radius: 9999px; text-transform: uppercase;">Required</span>
+                    </div>
+                    <p style="font-size: 0.83rem; color: #c2410c; margin: 0; line-height: 1.4;">
+                        Upload your PDF resume in settings to enable job applications for recruitment drives.
+                    </p>
+                    <div style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.4rem; font-size: 0.83rem; font-weight: 800; color: #ea580c;">
+                        <span>Go to Upload Settings</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inline Highlight Alert Banner -->
+        <div onclick="window.location.href='index.php?module=student&action=studentSettings';" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 1.5px solid #f97316; border-radius: var(--radius-xl); padding: 1.25rem 1.5rem; margin-bottom: 2rem; cursor: pointer; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #ea580c; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(234,88,12,0.35);">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #9a3412;">Resume Upload Required for Applications ⚠️</h4>
+                    <p style="margin: 0.2rem 0 0 0; font-size: 0.85rem; color: #c2410c;">
+                        You have not uploaded your resume yet. Click here to upload your resume before applying.
+                    </p>
+                </div>
+            </div>
+            <a href="index.php?module=student&action=studentSettings" class="btn" style="background: #ea580c; color: #ffffff; font-weight: 700; padding: 0.65rem 1.25rem; font-size: 0.85rem; border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);">
+                <i class="fa-solid fa-gear"></i> Upload Resume Now &rarr;
+            </a>
+        </div>
+    <?php endif; ?>
+
     <!-- Summary Stats Bar -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
         <!-- Card 1: Active Drives -->
@@ -241,12 +284,18 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
                                         <i class="fa-solid fa-check-circle"></i> Already Applied
                                     </button>
                                 <?php elseif ($comp['status'] !== 'Closed'): ?>
-                                    <form action="index.php?module=application&action=apply" method="POST" onsubmit="return confirm('Are you sure you want to apply? Your profile and resume will be submitted for this position.');" style="margin: 0;">
-                                        <input type="hidden" name="company_id" value="<?= (int)$comp['id'] ?>">
-                                        <button type="submit" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 0.35rem;">
-                                            <i class="fa-solid fa-paper-plane"></i> Apply Now
+                                    <?php if (!$hasResume): ?>
+                                        <button type="button" onclick="window.location.href='index.php?module=student&action=studentSettings';" class="btn btn-sm" style="display: flex; align-items: center; gap: 0.35rem; background: #ea580c; border: 1px solid #ea580c; color: #ffffff; font-weight: 700;" title="Upload Resume in Settings to Apply">
+                                            <i class="fa-solid fa-file-circle-exclamation"></i> Upload Resume to Apply
                                         </button>
-                                    </form>
+                                    <?php else: ?>
+                                        <form action="index.php?module=application&action=apply" method="POST" onsubmit="return confirm('Are you sure you want to apply? Your profile and resume will be submitted for this position.');" style="margin: 0;">
+                                            <input type="hidden" name="company_id" value="<?= (int)$comp['id'] ?>">
+                                            <button type="submit" class="btn btn-primary btn-sm" style="display: flex; align-items: center; gap: 0.35rem;">
+                                                <i class="fa-solid fa-paper-plane"></i> Apply Now
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <span style="font-size: 0.78rem; font-weight: 600; color: var(--rose-600);">Applications Closed</span>
                                 <?php endif; ?>

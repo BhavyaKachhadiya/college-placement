@@ -26,9 +26,15 @@ class CompanyController {
         $suggestions = $this->companyModel->getSuggestions();
 
         $appliedCompanyIds = [];
+        $hasResume         = true;
         if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {
             $applicationModel = new JobApplication();
             $appliedCompanyIds = $applicationModel->getAppliedCompanyIds($_SESSION['user_id']);
+
+            require_once __DIR__ . '/../models/StudentPlacement.php';
+            $studentModel = new StudentPlacement();
+            $studentData  = $studentModel->getById((int)$_SESSION['user_id']);
+            $hasResume    = !empty($studentData['resume_file']);
         }
 
         require_once __DIR__ . '/../views/layouts/header.php';
