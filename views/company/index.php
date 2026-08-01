@@ -59,26 +59,59 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
     <!-- Student Resume Missing Toast & Banner Popup -->
     <?php if (!$isAdmin && isset($hasResume) && !$hasResume): ?>
         <!-- Floating Interactive Toast Notification for Missing Resume -->
-        <div id="resumeToastPopup" onclick="window.location.href='index.php?module=student&action=studentSettings';" style="position: fixed; top: 5.5rem; right: 1.5rem; z-index: 99999; width: calc(100% - 3rem); max-width: 440px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px solid #ea580c; border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; box-shadow: 0 16px 40px rgba(234, 88, 12, 0.35); cursor: pointer; animation: slideInToast 0.4s cubic-bezier(0.16, 1, 0.3, 1); transition: all 0.25s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 20px 48px rgba(234, 88, 12, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 16px 40px rgba(234, 88, 12, 0.35)';">
-            <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+        <div id="resumeToastPopup" onclick="window.location.href='index.php?module=student&action=studentSettings';" style="position: fixed; top: 5.5rem; right: 1.5rem; z-index: 99999; width: calc(100% - 3rem); max-width: 440px; background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px solid #ea580c; border-radius: var(--radius-lg); padding: 1.1rem 1.25rem; box-shadow: 0 16px 40px rgba(234, 88, 12, 0.35); cursor: pointer; opacity: 0; transform: translateY(-15px); transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 20px 48px rgba(234, 88, 12, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 16px 40px rgba(234, 88, 12, 0.35)';">
+            <div style="display: flex; align-items: flex-start; gap: 0.85rem; position: relative;">
                 <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: #ea580c; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(234,88,12,0.4);">
                     <i class="fa-solid fa-file-circle-exclamation"></i>
                 </div>
                 <div style="flex: 1;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.2rem; padding-right: 1.2rem;">
                         <strong style="font-size: 0.98rem; color: #9a3412; font-family: var(--font-display); font-weight: 800;">Resume Not Uploaded ⚠️</strong>
                         <span style="font-size: 0.68rem; font-weight: 800; background: #ea580c; color: #ffffff; padding: 0.15rem 0.55rem; border-radius: 9999px; text-transform: uppercase;">Required</span>
                     </div>
                     <p style="font-size: 0.83rem; color: #c2410c; margin: 0; line-height: 1.4;">
                         Upload your PDF resume in settings to enable job applications for recruitment drives.
                     </p>
-                    <div style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.4rem; font-size: 0.83rem; font-weight: 800; color: #ea580c;">
-                        <span>Go to Upload Settings</span>
-                        <i class="fa-solid fa-arrow-right"></i>
+                    <div style="margin-top: 0.65rem; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.83rem; font-weight: 800; color: #ea580c;">
+                            <span>Go to Upload Settings</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                       
                     </div>
                 </div>
+
+                <!-- Close Button -->
+                <button type="button" onclick="event.stopPropagation(); dismissResumeToast();" style="position: absolute; top: -0.4rem; right: -0.4rem; background: none; border: none; font-size: 1.35rem; color: #9a3412; cursor: pointer; line-height: 1; padding: 0.25rem; opacity: 0.75; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">&times;</button>
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toast = document.getElementById('resumeToastPopup');
+                if (!toast) return;
+
+                // Fade In smoothly
+                setTimeout(function() {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateY(0)';
+                }, 100);
+
+                // Auto Fade Out after 10 seconds (10000ms)
+                const timer = setTimeout(function() {
+                    dismissResumeToast();
+                }, 10000);
+
+                window.dismissResumeToast = function() {
+                    clearTimeout(timer);
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-15px)';
+                    setTimeout(function() {
+                        toast.style.display = 'none';
+                    }, 500);
+                };
+            });
+        </script>
 
         <!-- Inline Highlight Alert Banner -->
         <div onclick="window.location.href='index.php?module=student&action=studentSettings';" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 1.5px solid #f97316; border-radius: var(--radius-xl); padding: 1.25rem 1.5rem; margin-bottom: 2rem; cursor: pointer; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; transition: transform 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
