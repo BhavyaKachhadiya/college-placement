@@ -1589,6 +1589,105 @@ body.modal-open {
     50%       { opacity: 0.6; box-shadow: 0 0 4px var(--brand-400); }
 }
 
+/* ---- Sidebar Nested Child Sub-Menu ---- */
+.nav-parent-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.25rem;
+}
+
+.nav-parent-item {
+    position: relative;
+}
+
+.nav-parent-arrow {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    transition: transform 0.25s ease, color 0.2s ease;
+    justify-self: end;
+}
+
+.nav-parent-group.open .nav-parent-arrow {
+    transform: rotate(180deg);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.nav-child-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-left: 1rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.35rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
+    margin-left: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.nav-parent-group.open .nav-child-menu {
+    display: flex;
+}
+
+.nav-child-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-sm);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--transition);
+    position: relative;
+}
+
+.nav-child-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    transform: translateX(3px);
+}
+
+.nav-child-item.active {
+    background: linear-gradient(135deg, rgba(59, 91, 219, 0.4) 0%, rgba(59, 91, 219, 0.25) 100%);
+    color: var(--white);
+    font-weight: 700;
+    border: 1px solid rgba(91, 120, 250, 0.35);
+    box-shadow: 0 2px 8px rgba(59, 91, 219, 0.25);
+}
+
+.nav-child-icon {
+    font-size: 0.85rem;
+    width: 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.nav-child-item.active .nav-child-icon {
+    color: var(--brand-300);
+}
+
+.nav-child-item:hover .nav-child-icon {
+    color: var(--white);
+}
+
+.nav-child-badge {
+    margin-left: auto;
+    font-size: 0.68rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-full);
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    font-weight: 700;
+}
+
+.nav-child-item.active .nav-child-badge {
+    background: var(--brand-500);
+    color: var(--white);
+}
+
 /* ---- Sidebar Divider ---- */
 .sidebar-divider {
     height: 1px;

@@ -21,8 +21,9 @@ class CompanyController {
         $search = isset($_GET['search']) ? trim($_GET['search']) : '';
         $status = isset($_GET['status']) ? trim($_GET['status']) : '';
 
-        $companies = $this->companyModel->getAll($search, $status);
-        $stats     = $this->companyModel->getStats();
+        $companies   = $this->companyModel->getAll($search, $status);
+        $stats       = $this->companyModel->getStats();
+        $suggestions = $this->companyModel->getSuggestions();
 
         $appliedCompanyIds = [];
         if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student') {

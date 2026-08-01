@@ -112,9 +112,11 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
             <input type="hidden" name="action" value="index">
 
             <!-- Search input -->
-            <div style="flex: 1; min-width: 260px; position: relative;">
-                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--neutral-400);"></i>
-                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search company name, role, location, or industry..." style="width: 100%; padding: 0.7rem 1rem 0.7rem 2.6rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-md); font-family: var(--font-primary);">
+            <div class="autocomplete-wrapper" style="flex: 1; min-width: 260px; position: relative;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--neutral-400); z-index: 2;"></i>
+                <input type="text" name="search" id="companySearchInput" value="<?= htmlspecialchars($search) ?>" placeholder="Search company name, role, location, or industry..." autocomplete="off" spellcheck="false" style="width: 100%; padding: 0.7rem 1rem 0.7rem 2.6rem; border: 1px solid var(--neutral-300); border-radius: var(--radius-md); font-family: var(--font-primary);">
+                <!-- Live Floating Suggestions Dropdown -->
+                <div class="search-suggestions-dropdown" id="companySearchDropdown"></div>
             </div>
 
             <!-- Status Filter Tabs -->
@@ -270,3 +272,149 @@ $status    = isset($_GET['status']) ? trim($_GET['status']) : '';
     <?php endif; ?>
 
 </div>
+
+<script>
+    const COMPANY_SUGGESTIONS = <?= json_encode($suggestions ?? ['companies' => [], 'roles' => [], 'industries' => [], 'locations' => []]) ?>;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const input    = document.getElementById('companySearchInput');
+        const dropdown = document.getElementById('companySearchDropdown');
+        let activeIndex = -1;
+
+        if (!input || !dropdown) return;
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function highlightMatch(text, query) {
+            if (!query) return escapeHtml(text);
+            const escapedText  = escapeHtml(text);
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex        = new RegExp(`(${escapedQuery})`, 'gi');
+            return escapedText.replace(regex, '<mark class="suggestion-highlight">$1</mark>');
+        }
+
+        function renderCompanySuggestions(query) {
+            const q = query.trim().toLowerCase();
+            if (!q || q.length < 1) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matchedCompanies  = (COMPANY_SUGGESTIONS.companies || []).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+            const matchedRoles      = (COMPANY_SUGGESTIONS.roles || []).filter(r => r.toLowerCase().includes(q)).slice(0, 5);
+            const matchedIndustries = (COMPANY_SUGGESTIONS.industries || []).filter(i => i.toLowerCase().includes(q)).slice(0, 5);
+            const matchedLocations  = (COMPANY_SUGGESTIONS.locations || []).filter(l => l.toLowerCase().includes(q)).slice(0, 5);
+
+            const totalMatches = matchedCompanies.length + matchedRoles.length + matchedIndustries.length + matchedLocations.length;
+
+            if (totalMatches === 0) {
+                dropdown.innerHTML = `<div class="suggestion-empty"><i class="fa-solid fa-magnifying-glass"></i> No matching company drives found</div>`;
+                dropdown.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+
+            if (matchedCompanies.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-building"></i> Companies</div>`;
+                matchedCompanies.forEach(c => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(c)}">
+                                <i class="fa-solid fa-building suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(c, q)}</span>
+                                <span class="suggestion-badge">Company</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedRoles.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-user-tie"></i> Job Roles</div>`;
+                matchedRoles.forEach(r => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(r)}">
+                                <i class="fa-solid fa-user-tie suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(r, q)}</span>
+                                <span class="suggestion-badge">Role</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedIndustries.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-city"></i> Industries</div>`;
+                matchedIndustries.forEach(ind => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(ind)}">
+                                <i class="fa-solid fa-city suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(ind, q)}</span>
+                                <span class="suggestion-badge">Industry</span>
+                             </div>`;
+                });
+            }
+
+            if (matchedLocations.length > 0) {
+                html += `<div class="suggestion-group-header"><i class="fa-solid fa-location-dot"></i> Locations</div>`;
+                matchedLocations.forEach(loc => {
+                    html += `<div class="suggestion-item" data-value="${escapeHtml(loc)}">
+                                <i class="fa-solid fa-map-pin suggestion-icon"></i>
+                                <span class="suggestion-text">${highlightMatch(loc, q)}</span>
+                                <span class="suggestion-badge">Location</span>
+                             </div>`;
+                });
+            }
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+            activeIndex = -1;
+
+            dropdown.querySelectorAll('.suggestion-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    input.value = this.getAttribute('data-value');
+                    dropdown.style.display = 'none';
+                    input.closest('form').submit();
+                });
+            });
+        }
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        input.addEventListener('input', function() { renderCompanySuggestions(this.value); });
+        input.addEventListener('focus', function() { renderCompanySuggestions(this.value); });
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        input.addEventListener('keydown', function(e) {
+            const items = dropdown.querySelectorAll('.suggestion-item');
+            if (!items.length || dropdown.style.display === 'none') return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    items[activeIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+</script>

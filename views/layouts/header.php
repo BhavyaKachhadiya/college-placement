@@ -146,61 +146,38 @@ $isStudent = isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'studen
                     <?php endif; ?>
                 </a>
 
-                <!-- Job Applications -->
-                <a href="index.php?module=application"
-                    class="sidebar-nav-item <?= $currentModule === 'application' ? 'active' : '' ?>"
-                    aria-current="<?= $currentModule === 'application' ? 'page' : 'false' ?>">
-                    <span class="nav-item-icon">
-                        <i class="fa-solid fa-file-signature"></i>
-                    </span>
-                    <span class="nav-item-label">Job Applications</span>
-                    <span class="nav-item-desc">Student Submissions</span>
-                    <?php if ($currentModule === 'application'): ?>
-                        <span class="nav-active-indicator"></span>
-                    <?php endif; ?>
-                </a>
+                <!-- Parent Group: Students -->
+                <?php $isStudentGroupActive = in_array($currentModule, ['student', 'students', 'application', 'placement', 'internship']); ?>
+                <div class="nav-parent-group <?= $isStudentGroupActive ? 'open' : '' ?>">
+                    <div class="sidebar-nav-item nav-parent-item <?= $isStudentGroupActive ? 'active' : '' ?>" onclick="toggleNavGroup(this)">
+                        <span class="nav-item-icon">
+                            <i class="fa-solid fa-users-line"></i>
+                        </span>
+                        <span class="nav-item-label">Students</span>
+                        <span class="nav-item-desc">Profiles &amp; Applications</span>
+                        <i class="fa-solid fa-chevron-down nav-parent-arrow"></i>
+                    </div>
 
-                <!-- Students Directory -->
-                <a href="index.php?module=student"
-                    class="sidebar-nav-item <?= ($currentModule === 'student' || $currentModule === 'students') ? 'active' : '' ?>"
-                    aria-current="<?= ($currentModule === 'student' || $currentModule === 'students') ? 'page' : 'false' ?>">
-                    <span class="nav-item-icon">
-                        <i class="fa-solid fa-users-line"></i>
-                    </span>
-                    <span class="nav-item-label">Students</span>
-                    <span class="nav-item-desc">Directory &amp; Profiles</span>
-                    <?php if ($currentModule === 'student' || $currentModule === 'students'): ?>
-                        <span class="nav-active-indicator"></span>
-                    <?php endif; ?>
-                </a>
-
-                <!-- Placement -->
-                <a href="index.php?module=placement"
-                    class="sidebar-nav-item <?= $currentModule === 'placement' ? 'active' : '' ?>"
-                    aria-current="<?= $currentModule === 'placement' ? 'page' : 'false' ?>">
-                    <span class="nav-item-icon">
-                        <i class="fa-solid fa-user-graduate"></i>
-                    </span>
-                    <span class="nav-item-label">Placement</span>
-                    <span class="nav-item-desc">Student Job Outcomes</span>
-                    <?php if ($currentModule === 'placement'): ?>
-                        <span class="nav-active-indicator"></span>
-                    <?php endif; ?>
-                </a>
-
-                <!-- Internship -->
-                <a href="index.php?module=internship"
-                    class="sidebar-nav-item <?= $currentModule === 'internship' ? 'active' : '' ?>"
-                    aria-current="<?= $currentModule === 'internship' ? 'page' : 'false' ?>">
-                    <span class="nav-item-icon">
-                        <i class="fa-solid fa-laptop-code"></i>
-                    </span>
-                    <span class="nav-item-label">Internships</span>
-                    <span class="nav-item-desc">Industry Training</span>
-                    <?php if ($currentModule === 'internship'): ?>
-                        <span class="nav-active-indicator"></span>
-                    <?php endif; ?>
-                </a>
+                    <!-- Child Sub-Menu -->
+                    <div class="nav-child-menu">
+                        <a href="index.php?module=student" class="nav-child-item <?= ($currentModule === 'student' || $currentModule === 'students') ? 'active' : '' ?>">
+                            <i class="fa-solid fa-id-card nav-child-icon"></i>
+                            <span>Directory &amp; Profiles</span>
+                        </a>
+                        <a href="index.php?module=application" class="nav-child-item <?= $currentModule === 'application' ? 'active' : '' ?>">
+                            <i class="fa-solid fa-file-signature nav-child-icon"></i>
+                            <span>Job Applications</span>
+                        </a>
+                        <a href="index.php?module=placement" class="nav-child-item <?= $currentModule === 'placement' ? 'active' : '' ?>">
+                            <i class="fa-solid fa-user-graduate nav-child-icon"></i>
+                            <span>Placement Outcomes</span>
+                        </a>
+                        <a href="index.php?module=internship" class="nav-child-item <?= $currentModule === 'internship' ? 'active' : '' ?>">
+                            <i class="fa-solid fa-laptop-code nav-child-icon"></i>
+                            <span>Industry Internships</span>
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Institutional Section -->
                 <div class="sidebar-section-label" style="margin-top: 0.75rem;">Institutional</div>

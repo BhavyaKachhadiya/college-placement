@@ -134,4 +134,21 @@ class Company {
             'highest_package' => $highestPackage
         ];
     }
+
+    /**
+     * Get distinct values for search suggestions
+     */
+    public function getSuggestions() {
+        $companies  = $this->conn->query("SELECT DISTINCT `company_name` FROM `{$this->table}` WHERE `company_name` IS NOT NULL AND `company_name` != '' ORDER BY `company_name` ASC")->fetchAll(PDO::FETCH_COLUMN);
+        $roles      = $this->conn->query("SELECT DISTINCT `job_role` FROM `{$this->table}` WHERE `job_role` IS NOT NULL AND `job_role` != '' ORDER BY `job_role` ASC")->fetchAll(PDO::FETCH_COLUMN);
+        $industries = $this->conn->query("SELECT DISTINCT `industry` FROM `{$this->table}` WHERE `industry` IS NOT NULL AND `industry` != '' ORDER BY `industry` ASC")->fetchAll(PDO::FETCH_COLUMN);
+        $locations  = $this->conn->query("SELECT DISTINCT `location` FROM `{$this->table}` WHERE `location` IS NOT NULL AND `location` != '' ORDER BY `location` ASC")->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'companies'  => array_values(array_filter($companies)),
+            'roles'      => array_values(array_filter($roles)),
+            'industries' => array_values(array_filter($industries)),
+            'locations'  => array_values(array_filter($locations)),
+        ];
+    }
 }
