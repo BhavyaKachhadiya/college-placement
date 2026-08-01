@@ -90,42 +90,50 @@
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> View All
                 </a>
             </div>
-            <div class="card-body-pad">
-                <?php
-                $total = max(1, (int)($placementStats['total_students'] ?? 1));
-                $bars = [
-                    ['label' => 'Placed',         'count' => (int)($placementStats['placed_count']        ?? 0), 'color' => 'var(--green-500)',   'icon' => 'fa-briefcase'],
-                    ['label' => 'Internship',      'count' => (int)($placementStats['internship_count']    ?? 0), 'color' => 'var(--blue-500)',    'icon' => 'fa-laptop-code'],
-                    ['label' => 'Higher Studies',  'count' => (int)($placementStats['higher_studies_count']?? 0), 'color' => 'var(--accent-400)',  'icon' => 'fa-book-open'],
-                    ['label' => 'Business',        'count' => (int)($placementStats['business_count']      ?? 0), 'color' => 'var(--amber-600)',   'icon' => 'fa-store'],
-                    ['label' => 'Unplaced',        'count' => (int)($placementStats['unplaced_count']      ?? 0), 'color' => 'var(--neutral-300)', 'icon' => 'fa-user-clock'],
-                ];
-                foreach ($bars as $bar):
-                    $pct = round(($bar['count'] / $total) * 100, 1);
-                ?>
-                <div class="dash-bar-row">
-                    <div class="dash-bar-label">
-                        <i class="fa-solid <?= $bar['icon'] ?>" style="color:<?= $bar['color'] ?>; width:16px;"></i>
-                        <span><?= $bar['label'] ?></span>
+            <div class="card-body-pad dash-breakdown-body">
+                <div class="dash-bars-group">
+                    <?php
+                    $total = max(1, (int)($placementStats['total_students'] ?? 1));
+                    $bars = [
+                        ['label' => 'Placed',         'count' => (int)($placementStats['placed_count']        ?? 0), 'color' => 'var(--green-500)',   'icon' => 'fa-briefcase'],
+                        ['label' => 'Internship',      'count' => (int)($placementStats['internship_count']    ?? 0), 'color' => 'var(--blue-500)',    'icon' => 'fa-laptop-code'],
+                        ['label' => 'Higher Studies',  'count' => (int)($placementStats['higher_studies_count']?? 0), 'color' => 'var(--accent-400)',  'icon' => 'fa-book-open'],
+                        ['label' => 'Business',        'count' => (int)($placementStats['business_count']      ?? 0), 'color' => 'var(--amber-600)',   'icon' => 'fa-store'],
+                        ['label' => 'Unplaced',        'count' => (int)($placementStats['unplaced_count']      ?? 0), 'color' => 'var(--neutral-300)', 'icon' => 'fa-user-clock'],
+                    ];
+                    foreach ($bars as $bar):
+                        $pct = round(($bar['count'] / $total) * 100, 1);
+                    ?>
+                    <div class="dash-bar-row">
+                        <div class="dash-bar-label">
+                            <i class="fa-solid <?= $bar['icon'] ?>" style="color:<?= $bar['color'] ?>; width:16px;"></i>
+                            <span><?= $bar['label'] ?></span>
+                        </div>
+                        <div class="dash-bar-track">
+                            <div class="dash-bar-fill" style="width: <?= $pct ?>%; background: <?= $bar['color'] ?>;"></div>
+                        </div>
+                        <div class="dash-bar-stats">
+                            <strong><?= $bar['count'] ?></strong>
+                            <span class="text-muted"><?= $pct ?>%</span>
+                        </div>
                     </div>
-                    <div class="dash-bar-track">
-                        <div class="dash-bar-fill" style="width: <?= $pct ?>%; background: <?= $bar['color'] ?>;"></div>
-                    </div>
-                    <div class="dash-bar-stats">
-                        <strong><?= $bar['count'] ?></strong>
-                        <span class="text-muted"><?= $pct ?>%</span>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
 
-                <?php if (!empty($placementStats['max_package']) && $placementStats['max_package'] > 0): ?>
-                <div class="dash-highlight-stat">
-                    <i class="fa-solid fa-trophy" style="color: var(--amber-600);"></i>
-                    <span>Highest Package: <strong><?= number_format((float)$placementStats['max_package'], 2) ?> LPA</strong></span>
-                    &nbsp;·&nbsp;
-                    <span>Avg CGPA: <strong><?= number_format((float)($placementStats['avg_cgpa'] ?? 0), 2) ?></strong></span>
+                <!-- Footer Summary Blocks -->
+                <div class="dash-breakdown-footer">
+                    <?php if (!empty($placementStats['max_package']) && $placementStats['max_package'] > 0): ?>
+                    <div class="dash-highlight-stat">
+                        <span><i class="fa-solid fa-trophy" style="color: var(--amber-600);"></i> Highest Package: <strong><?= number_format((float)$placementStats['max_package'], 2) ?> LPA</strong></span>
+                        <span><i class="fa-solid fa-star" style="color: var(--brand-500);"></i> Avg CGPA: <strong><?= number_format((float)($placementStats['avg_cgpa'] ?? 0), 2) ?></strong></span>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="dash-summary-strip">
+                        <span><i class="fa-solid fa-circle-check" style="color: var(--green-600);"></i> Overall Success Rate: <strong style="color: var(--green-700); font-weight: 800;"><?= round((((int)($placementStats['placed_count'] ?? 0) + (int)($placementStats['internship_count'] ?? 0)) / $total) * 100, 1) ?>%</strong></span>
+                        <span>Total Tracked: <strong style="color: var(--neutral-900);"><?= number_format((float)($placementStats['total_students'] ?? 0)) ?> Students</strong></span>
+                    </div>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
 
